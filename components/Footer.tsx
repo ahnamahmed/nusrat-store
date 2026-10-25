@@ -74,13 +74,13 @@ export function Footer() {
                 {/* Bottom Giant Wordmark & Copyright */}
                 <div className="flex flex-col gap-8">
                     <div className="flex flex-col min-[810px]:flex-row items-center justify-between gap-2 text-[14px] font-light text-[#8f8f8f]">
-                        <p>© {new Date().getFullYear()} Batavia. All rights reserved.</p>
+                        <p>© {new Date().getFullYear()} Nusrat. All rights reserved.</p>
                         <p>Designed for timeless wardrobes.</p>
                     </div>
 
                     <div className="flex w-full justify-center overflow-hidden">
-                        <span className="font-serif-sc text-[16vw] leading-[0.8] font-semibold uppercase tracking-tight text-white/95 select-none">
-                            BATAVIA
+                        <span className="font-serif-sc text-[16vw] leading-[0.8] font-semibold uppercase tracking-tight text-gold/95 select-none">
+                            NUSRAT
                         </span>
                     </div>
                 </div>

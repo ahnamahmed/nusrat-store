@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 const NAV_LINKS = [
     { label: "SHOP", href: "/shop/all" },
@@ -17,11 +18,15 @@ export function Navbar() {
         <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-[#ededed]">
             <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-5 min-[810px]:px-6 min-[1200px]:px-10">
                 {/* Brand Logo */}
-                <Link
-                    href="/"
-                    className="font-serif-sc text-2xl font-semibold tracking-wider text-[#121212] uppercase"
-                >
-                    Batavia
+                <Link href="/" className="flex items-center">
+                    <Image
+                        src="/logo.png"
+                        alt="Nusrat Panjabi"
+                        width={160}
+                        height={40}
+                        priority
+                        className="h-8 w-auto object-contain"
+                    />
                 </Link>
 
                 {/* Desktop Nav Links */}
