@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SectionHeader } from "./SectionHeader";
 import { CornerBrackets } from "./CornerBrackets";
+import Image from "next/image";
 
 const PRODUCTS = [
     {
@@ -53,16 +54,20 @@ export function ProductsSection() {
                             {/* Image Mask (aspect-ratio: 0.874) */}
                             <div className="relative aspect-[0.874] w-full overflow-hidden bg-[#f5f5f5]">
                                 {/* Back Image */}
-                                <img
+                                <Image
                                     src={product.backImage}
-                                    alt={`${product.title} alternate view`}
-                                    className="absolute inset-0 h-full w-full scale-115 object-cover object-top transition-transform duration-500 group-hover:scale-100"
+                                    alt={product.title}
+                                    fill
+                                    sizes="(max-width: 810px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                    className="object-cover object-top"
                                 />
                                 {/* Front Image */}
-                                <img
+                                <Image
                                     src={product.frontImage}
                                     alt={product.title}
-                                    className="absolute inset-0 h-full w-full object-cover object-top transition-all duration-500 group-hover:scale-115 group-hover:opacity-0"
+                                    fill
+                                    sizes="(max-width: 810px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                    className="object-cover object-top transition-all duration-500 group-hover:scale-115 group-hover:opacity-0"
                                 />
                                 <div className="bg-noise pointer-events-none absolute inset-0 opacity-5" />
                                 <CornerBrackets />

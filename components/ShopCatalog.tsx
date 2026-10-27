@@ -4,6 +4,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { SHOP_CATEGORIES, SHOP_PRODUCTS, ShopProduct } from "@/data/shopProducts";
+import Image from "next/image";
 
 interface ShopCatalogProps {
     initialCategory?: string;
@@ -40,9 +41,9 @@ export default function ShopCatalog({ initialCategory = "all" }: ShopCatalogProp
                             <button
                                 key={category.slug}
                                 onClick={() => setActiveCategory(category.slug)}
-                                className={`cursor-pointer border px-4 py-2 text-[16px] font-light tracking-[-0.03em] transition-all duration-200 ${isActive
-                                        ? "border-[#121212] text-[#121212]"
-                                        : "border-transparent text-[#121212] hover:border-[#121212]/30"
+                                className={`cursor-pointer border px-4 py-2 text-[15px] tracking-[-0.02em] transition-all duration-200 ${isActive
+                                    ? "border-gold bg-gold/10 font-medium text-gold"
+                                    : "border-transparent text-[#121212] hover:border-gold/40 hover:text-gold"
                                     }`}
                             >
                                 {category.label}
@@ -70,25 +71,28 @@ function ProductCard({ product }: { product: ShopProduct }) {
             href={`/products/${product.slug}`}
             className="group flex w-full cursor-pointer flex-col gap-4 no-underline"
         >
-            {/* Image Mask Container (Aspect Ratio 0.874 matching Framer .framer-1up0fn8) */}
+            {/* Image Mask Container (Aspect Ratio 0.874 matching Framer layout) */}
             <div className="relative aspect-[0.874] w-full overflow-hidden bg-[#f5f5f5]">
                 {/* Back Image (Revealed on Hover, scales down from 115% to 100%) */}
                 <div className="absolute inset-0 h-full w-full">
-                    <img
+                    <Image
                         src={product.backImage}
-                        alt={`${product.name} alternate view`}
-                        loading="lazy"
-                        className="block h-full w-full scale-[1.15] object-cover object-top transition-transform duration-700 ease-out group-hover:scale-100"
+                        alt={product.name}
+                        fill
+                        sizes="(max-width: 810px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover object-top"
                     />
                 </div>
 
+
                 {/* Front Image (Default visible, fades out & scales up to 115% on Hover) */}
                 <div className="absolute inset-0 h-full w-full transition-all duration-700 ease-out group-hover:scale-[1.15] group-hover:opacity-0">
-                    <img
+                    <Image
                         src={product.frontImage}
                         alt={product.name}
-                        loading="lazy"
-                        className="block h-full w-full object-cover object-top"
+                        fill
+                        sizes="(max-width: 810px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover object-top"
                     />
                 </div>
 
@@ -103,37 +107,35 @@ function ProductCard({ product }: { product: ShopProduct }) {
                     }}
                 />
 
-                {/* Animated White Corner Brackets (Inset 24px -> 16px on hover) */}
-                <div className="pointer-events-none absolute left-6 top-6 z-[2] h-[18px] w-[18px] border-l border-t border-white opacity-0 transition-all duration-300 ease-out group-hover:left-4 group-hover:top-4 group-hover:opacity-100" />
-                <div className="pointer-events-none absolute bottom-6 left-6 z-[2] h-[18px] w-[18px] border-b border-l border-white opacity-0 transition-all duration-300 ease-out group-hover:bottom-4 group-hover:left-4 group-hover:opacity-100" />
-                <div className="pointer-events-none absolute right-6 top-6 z-[2] h-[18px] w-[18px] border-r border-t border-white opacity-0 transition-all duration-300 ease-out group-hover:right-4 group-hover:top-4 group-hover:opacity-100" />
-                <div className="pointer-events-none absolute bottom-6 right-6 z-[2] h-[18px] w-[18px] border-b border-r border-white opacity-0 transition-all duration-300 ease-out group-hover:bottom-4 group-hover:right-4 group-hover:opacity-100" />
+                {/* Animated Gold Corner Brackets (Inset 24px -> 16px on hover) */}
+                <div className="pointer-events-none absolute left-6 top-6 z-[2] h-[18px] w-[18px] border-l border-t border-gold opacity-0 transition-all duration-300 ease-out group-hover:left-4 group-hover:top-4 group-hover:opacity-100" />
+                <div className="pointer-events-none absolute bottom-6 left-6 z-[2] h-[18px] w-[18px] border-b border-l border-gold opacity-0 transition-all duration-300 ease-out group-hover:bottom-4 group-hover:left-4 group-hover:opacity-100" />
+                <div className="pointer-events-none absolute right-6 top-6 z-[2] h-[18px] w-[18px] border-r border-t border-gold opacity-0 transition-all duration-300 ease-out group-hover:right-4 group-hover:top-4 group-hover:opacity-100" />
+                <div className="pointer-events-none absolute bottom-6 right-6 z-[2] h-[18px] w-[18px] border-b border-r border-gold opacity-0 transition-all duration-300 ease-out group-hover:bottom-4 group-hover:right-4 group-hover:opacity-100" />
             </div>
 
             {/* Product Description Row */}
             <div className="flex w-full items-center justify-between gap-4">
                 {/* Left: Product Name & Category */}
                 <div className="flex flex-1 flex-col items-start justify-center">
-                    <p className="text-[18px] font-medium leading-[1.4] tracking-[-0.03em] text-[#121212]">
+                    <p className="text-[17px] font-medium leading-[1.4] tracking-[-0.02em] text-[#121212] transition-colors duration-300 group-hover:text-gold">
                         {product.name}
                     </p>
-                    <p className="text-[16px] font-light leading-[1.5] tracking-[-0.03em] text-[#4b4b4b]">
+                    <p className="text-[14px] font-light leading-[1.5] tracking-[-0.02em] text-[#8f8f8f]">
                         {product.category}
                     </p>
                 </div>
 
                 {/* Right: Current Price & Strikethrough Original Price */}
                 <div className="flex flex-col items-end justify-end">
-                    <div className="flex items-center">
-                        <h3 className="text-[20px] font-medium leading-[1.5] tracking-[-0.03em] text-[#121212]">
-                            ${product.price}
-                        </h3>
+                    <div className="flex items-center text-[18px] font-semibold tracking-tight text-gold">
+                        <span>৳</span>
+                        <span>{product.price.toLocaleString()}</span>
                     </div>
                     {product.originalPrice && (
-                        <div className="flex items-center">
-                            <p className="text-[16px] font-light leading-[1.5] tracking-[-0.03em] text-[#8f8f8f] line-through">
-                                ${product.originalPrice}
-                            </p>
+                        <div className="flex items-center text-[14px] font-light tracking-tight text-[#8f8f8f] line-through">
+                            <span>৳</span>
+                            <span>{product.originalPrice.toLocaleString()}</span>
                         </div>
                     )}
                 </div>

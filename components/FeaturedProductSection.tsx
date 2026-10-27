@@ -4,6 +4,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { CornerBrackets } from "./CornerBrackets";
+import Image from "next/image";
 
 const GALLERY_IMAGES = [
     "/products/jubba-black-front.jpg",
@@ -20,10 +21,12 @@ export function FeaturedProductSection() {
             {/* Left 50% Sticky Interactive Image Gallery */}
             <div className="relative w-full min-[1200px]:w-1/2 h-[600px] min-[810px]:h-[800px] min-[1200px]:h-[95vh] min-[1200px]:sticky min-[1200px]:top-16 overflow-hidden bg-[#f5f5f5]">
                 {GALLERY_IMAGES.map((src, idx) => (
-                    <img
+                    <Image
                         key={src}
                         src={src}
                         alt={`Nusrat Arabian Jubba view ${idx + 1}`}
+                        fill
+                        sizes="(max-width: 810px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         className={`absolute inset-0 h-full w-full object-cover object-top transition-all duration-500 ${selectedIdx === idx ? "scale-100 opacity-100" : "scale-110 opacity-0"
                             }`}
                     />
@@ -51,9 +54,11 @@ export function FeaturedProductSection() {
                             >
                                 <CornerBrackets active={isSelected} />
                                 <div className="relative h-full w-full overflow-hidden">
-                                    <img
+                                    <Image
                                         src={src}
                                         alt={`Thumbnail ${idx + 1}`}
+                                        fill
+                                        sizes="(max-width: 810px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                         className="h-full w-full object-cover object-top"
                                     />
                                     <div
@@ -152,7 +157,7 @@ export function FeaturedProductSection() {
                                 <path d="M223.68,66.15,135.68,18a15.88,15.88,0,0,0-15.36,0l-88,48.17a16,16,0,0,0-8.32,14v95.64a16,16,0,0,0,8.32,14l88,48.17a15.88,15.88,0,0,0,15.36,0l88-48.17a16,16,0,0,0,8.32-14V80.18A16,16,0,0,0,223.68,66.15ZM128,32l80.34,44-29.77,16.3-80.35-44ZM128,120,47.66,76l33.9-18.56,80.34,44ZM40,90l80,43.78v85.79L40,175.82Zm176,85.78h0l-80,43.79V133.82l32-17.51V152a8,8,0,0,0,16,0V107.55L216,90v85.77Z" />
                             </svg>
                             <span className="text-[15px] font-light text-[#121212]">
-                                2–5 Days Dispatch
+                                2–3 Days Delivery
                             </span>
                         </div>
                     </div>
