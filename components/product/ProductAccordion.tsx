@@ -1,7 +1,12 @@
-// components/product/ProductAccordion.tsx
 "use client";
 
 import React, { useState } from "react";
+
+interface ProductAccordionProps {
+    description?: string;
+    fabricDetails?: string;
+    sizes?: (string | number)[];
+}
 
 interface AccordionItem {
     id: string;
@@ -9,7 +14,11 @@ interface AccordionItem {
     content: React.ReactNode;
 }
 
-export default function ProductAccordion({ description }: { description?: string }) {
+export default function ProductAccordion({
+    description,
+    fabricDetails,
+    sizes = [40, 42, 44, 46, 48],
+}: ProductAccordionProps) {
     const [openId, setOpenId] = useState<string | null>("description");
 
     const toggle = (id: string) => {
@@ -23,7 +32,7 @@ export default function ProductAccordion({ description }: { description?: string
             content: (
                 <p className="text-[15px] font-light leading-[1.6] text-[#4b4b4b]">
                     {description ||
-                        "Crafted from a premium cotton-linen blend, this garment offers a lightweight, breathable fit. Its tailored design ensures versatility for both formal wear and casual occasions."}
+                        "অভিজাত লুক ও সারাদিনের পরিধানে সর্বোচ্চ আরাম নিশ্চিত করতে প্রিমিয়াম সফট ফ্যাব্রিক এবং নিখুঁত আমিরাতি কাট দিয়ে তৈরি। মিনিমাল কলার স্টিচিং এবং রিঙ্কেল-ফ্রি ফিনিশিং।"}
                 </p>
             ),
         },
@@ -31,18 +40,29 @@ export default function ProductAccordion({ description }: { description?: string
             id: "materials",
             title: "Materials & Care",
             content: (
-                <p className="text-[15px] font-light leading-[1.6] text-[#4b4b4b]">
-                    Crafted from premium fabrics like cotton, linen, wool, and silk, our clothing ensures comfort and durability. For lasting wear, follow care instructions, machine wash gentle, air dry when needed, and avoid high heat for delicate materials.
-                </p>
+                <div className="space-y-2 text-[15px] font-light leading-[1.6] text-[#4b4b4b]">
+                    {fabricDetails && (
+                        <p>
+                            <strong className="text-[#121212]">ফ্যাব্রিক:</strong> {fabricDetails}
+                        </p>
+                    )}
+                    <p>
+                        মেশিন ওয়াশ জেন্টল অথবা ড্রাই ক্লিন করুন। ব্লিচ ব্যবহার পরিহার করুন। কাপড়ের উজ্জ্বলতা ও স্থায়িত্ব ধরে রাখতে সরাসরি কড়া রোদে বেশিক্ষণ রাখবেন না এবং উল্টো পাশে হালকা আয়রন করুন।
+                    </p>
+                </div>
             ),
         },
         {
             id: "shipping",
             title: "Shipping Information",
             content: (
-                <p className="text-[15px] font-light leading-[1.6] text-[#4b4b4b]">
-                    Orders ship within 1-2 business days. Delivery takes 2-3 days inside Dhaka and 3-5 days across all districts of Bangladesh. Tracking details provided via SMS upon dispatch.
-                </p>
+                <div className="space-y-1 text-[15px] font-light leading-[1.6] text-[#4b4b4b]">
+                    <p>• <strong>ঢাকার ভেতরে:</strong> ডেলিভারি চার্জ ৳৭০ (২-৩ কার্যদিবস)</p>
+                    <p>• <strong>ঢাকার বাইরে:</strong> ডেলিভারি চার্জ ৳১৩০ (৩-৫ কার্যদিবস)</p>
+                    <p className="pt-1 text-xs text-[#8f8f8f]">
+                        *সারা দেশে ক্যাশ অন ডেলিভারি সুবিধা রয়েছে। পার্সেল ডেলিভারি ম্যানের সামনে দেখে বুঝে নেওয়ার সুযোগ পাবেন।
+                    </p>
+                </div>
             ),
         },
         {
@@ -50,11 +70,14 @@ export default function ProductAccordion({ description }: { description?: string
             title: "Size Chart",
             content: (
                 <div className="space-y-1.5 text-[14px] font-light leading-[1.6] text-[#4b4b4b]">
-                    <p><strong>Size 40:</strong> Chest 40 in | Length 40 in</p>
-                    <p><strong>Size 42:</strong> Chest 42 in | Length 42 in</p>
-                    <p><strong>Size 44:</strong> Chest 44 in | Length 44 in</p>
-                    <p><strong>Size 46:</strong> Chest 46 in | Length 46 in</p>
-                    <p className="pt-2 text-xs text-[#8f8f8f]">*Measurements correspond to standard regular fit garment specifications.</p>
+                    {sizes.map((s) => (
+                        <p key={s}>
+                            <strong className="text-[#121212]">সাইজ {s}:</strong> ঝুল {s} ইঞ্চি | বডি {s}–{Number(s) + 2} ইঞ্চি (রেগুলার ফিট)
+                        </p>
+                    ))}
+                    <p className="pt-2 text-xs text-[#8f8f8f]">
+                        *উচ্চতা অনুযায়ী সাইজ নির্বাচন করুন: 5&apos;4&quot;–5&apos;5&quot; (40), 5&apos;6&quot;–5&apos;7&quot; (42), 5&apos;8&quot;–5&apos;9&quot; (44), 5&apos;10&quot;–5&apos;11&quot; (46), 6&apos;0&quot;+ (48)।
+                    </p>
                 </div>
             ),
         },
@@ -67,6 +90,7 @@ export default function ProductAccordion({ description }: { description?: string
                 return (
                     <div key={item.id} className="py-4">
                         <button
+                            type="button"
                             onClick={() => toggle(item.id)}
                             className="flex w-full cursor-pointer items-center justify-between text-left transition-colors hover:text-[#C5A059]"
                         >

@@ -4,8 +4,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { SHOP_PRODUCTS, ShopProduct } from "@/data/shopProducts";
+import { SHOP_PRODUCTS } from "@/data/shopProducts";
 import ProductGallery from "@/components/product/ProductGallery";
+import ProductPurchaseSection from "@/components/product/ProductPurchaseSection";
 import ProductAccordion from "@/components/product/ProductAccordion";
 import CustomerReviews from "@/components/product/CustomerReviews";
 import ProductFaq from "@/components/product/ProductFaq";
@@ -28,15 +29,27 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         notFound();
     }
 
-    // Recommended products (excluding current)
+    // Related products from the same category or general fallback
     const relatedProducts = SHOP_PRODUCTS.filter((p) => p.slug !== product.slug).slice(0, 3);
-    const galleryImages = [product.frontImage, product.backImage];
+
+    // Dynamic Image Array: front + back + all extra gallery items
+    const galleryImages = [
+        product.frontImage,
+        product.backImage,
+        ...(product.gallery || []),
+    ].filter(Boolean);
+
+    // Calculate percentage discount dynamically
+    const discountPercent =
+        product.originalPrice && product.originalPrice > product.price
+            ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+            : null;
 
     return (
         <main className="min-h-screen w-full bg-white pt-[102px]">
             <Navbar />
 
-            {/* Main Split Section: Gallery (Left) & Purchase Info (Right) */}
+            {/* Main Split Section: Sticky Gallery (Left) & Purchase Specs (Right) */}
             <section className="mx-auto w-full max-w-[1200px] px-5 py-10 min-[810px]:px-6 min-[1200px]:px-10">
                 <div className="grid grid-cols-1 gap-12 min-[1200px]:grid-cols-2">
                     {/* Sticky Left: Gallery */}
@@ -46,24 +59,30 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
                     {/* Scrollable Right: Purchase Specs */}
                     <div className="flex flex-col gap-8">
-                        {/* Title & Pricing */}
+                        {/* Title, Category & Pricing */}
                         <div className="flex flex-col gap-2">
+                            <span className="text-xs font-medium uppercase tracking-[0.14em] text-[#C5A059]">
+                                {product.category}
+                            </span>
+
                             <h1 className="text-2xl font-medium tracking-tight text-[#121212] min-[810px]:text-3xl">
                                 {product.name}
                             </h1>
 
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-4 pt-1">
                                 <span className="text-2xl font-semibold text-[#121212]">
-                                    ৳{product.price * 10} {/* Adapt to BDT or keep $ */}
+                                    ৳{product.price}
                                 </span>
                                 {product.originalPrice && (
                                     <span className="text-lg font-light text-[#8f8f8f] line-through">
-                                        ৳{product.originalPrice * 10}
+                                        ৳{product.originalPrice}
                                     </span>
                                 )}
-                                <span className="rounded bg-[#C5A059]/10 px-2 py-0.5 text-xs font-semibold text-[#C5A059]">
-                                    SAVE 20%
-                                </span>
+                                {discountPercent && (
+                                    <span className="rounded bg-[#C5A059]/15 px-2 py-0.5 text-xs font-semibold text-[#C5A059]">
+                                        SAVE {discountPercent}%
+                                    </span>
+                                )}
                             </div>
 
                             {/* Review Stars Counter */}
@@ -101,15 +120,18 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                             </div>
                         </div>
 
-                        {/* Direct Order Now Action Button */}
-                        <div className="flex flex-col gap-3">
-                            <button className="group relative flex h-14 w-full cursor-pointer items-center justify-center bg-[#121212] px-8 text-sm font-semibold tracking-[0.16em] uppercase text-white transition-colors duration-200 hover:bg-[#C5A059] hover:text-black">
-                                <span>ORDER NOW (CASH ON DELIVERY)</span>
-                            </button>
-                        </div>
+                        {/* Interactive Size Selector & Telegram COD Checkout Modal */}
+                        <ProductPurchaseSection
+                            productName={product.name}
+                            price={product.price}
+                            availableSizes={product.sizes || [40, 42, 44, 46, 48]}
+                        />
 
-                        {/* Collapsible Info Tabs */}
-                        <ProductAccordion />
+                        {/* Dynamic Collapsible Accordions */}
+                        <ProductAccordion
+                            description={product.description}
+                            fabricDetails={product.fabricDetails}
+                        />
                     </div>
                 </div>
             </section>
@@ -157,7 +179,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                                     <p className="text-[17px] font-medium text-[#121212]">{rel.name}</p>
                                     <p className="text-[14px] font-light text-[#4b4b4b]">{rel.category}</p>
                                 </div>
-                                <p className="text-[18px] font-semibold text-[#121212]">৳{rel.price * 10}</p>
+                                <p className="text-[18px] font-semibold text-[#121212]">৳{rel.price}</p>
                             </div>
                         </Link>
                     ))}

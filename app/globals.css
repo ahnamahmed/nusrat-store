@@ -2,6 +2,14 @@
 @source "../components";
 @source "../app";
 
+@theme {
+  --color-gold: #C5A059;
+  --color-gold-hover: #9A7B38;
+  --color-gold-light: #DFCA95;
+  --color-gold-dark: #82662C;
+  --color-gold-tint: rgba(197, 160, 89, 0.12);
+}
+
 :root {
   --token-dark: #121212;
   --token-gray-dark: #4b4b4b;
@@ -9,12 +17,24 @@
   --token-surface: #f5f5f5;
   --token-border: #ededed;
   --token-muted: #8f8f8f;
+
+  /* Brand Luxury Gold Tokens */
+  --token-gold: #C5A059;
+  --token-gold-hover: #9A7B38;
+  --token-gold-light: #DFCA95;
+  --token-gold-tint: rgba(197, 160, 89, 0.12);
 }
 
 body {
   font-family: var(--font-geist), sans-serif;
   color: var(--token-dark);
   background-color: var(--token-white);
+}
+
+/* Luxury text selection highlight */
+::selection {
+  background-color: #C5A059;
+  color: #121212;
 }
 
 h1,

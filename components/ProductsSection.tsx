@@ -4,31 +4,31 @@ import { CornerBrackets } from "./CornerBrackets";
 
 const PRODUCTS = [
     {
-        title: "Ruby Blazer",
-        category: "Lux Blazer",
-        price: 129,
-        oldPrice: 149,
-        href: "/products/ruby-blazer",
-        frontImage: "https://framerusercontent.com/images/UdvTDVSod4EAdM8A9xSaqkZ8cDI.jpg?width=906&height=1200",
-        backImage: "https://framerusercontent.com/images/VngDgYP4L3sfKsPLEadCijNcQ.jpg?width=906&height=1200",
+        title: "Arabian Jubba - Black",
+        category: "Arabian Jubba",
+        price: 2350,
+        oldPrice: 2950,
+        href: "/products/nusrat-arabian-jubba-black",
+        frontImage: "/products/jubba-black-front.jpg",
+        backImage: "/products/jubba-black-back.jpg",
     },
     {
-        title: "Opal Blazer",
-        category: "Lux Blazer",
-        price: 129,
-        oldPrice: 149,
-        href: "/products/opal-blazer",
-        frontImage: "https://framerusercontent.com/images/muBnem7t4J6SKYiypUjQNgZveI.jpg?width=906&height=1200",
-        backImage: "https://framerusercontent.com/images/gf898oqWuwcRlbDJdeAaANZ8Eoo.jpg?width=906&height=1200",
+        title: "Arabian Jubba - Deep Blue",
+        category: "Arabian Jubba",
+        price: 2350,
+        oldPrice: 2950,
+        href: "/products/nusrat-arabian-jubba-deep-blue",
+        frontImage: "/products/jubba-deepblue-front.jpg",
+        backImage: "/products/jubba-deepblue-back.jpg",
     },
     {
-        title: "Emerald Blazer",
-        category: "Lux Blazer",
-        price: 129,
-        oldPrice: 149,
-        href: "/products/emerald-blazer",
-        frontImage: "https://framerusercontent.com/images/QeeKTaTbcVFVtybAtz9owbqxq4.jpg?width=906&height=1200",
-        backImage: "https://framerusercontent.com/images/iU7FsQh4CSkGHIemsZixKshCoXU.jpg?width=906&height=1200",
+        title: "Arabian Jubba - Ash",
+        category: "Arabian Jubba",
+        price: 2350,
+        oldPrice: 2950,
+        href: "/products/nusrat-arabian-jubba-ash",
+        frontImage: "/products/jubba-ash-front.jpg",
+        backImage: "/products/jubba-ash-back.jpg",
     },
 ];
 
@@ -37,10 +37,10 @@ export function ProductsSection() {
         <section className="relative z-10 w-full bg-white py-[100px] px-5 min-[810px]:px-6 min-[1200px]:px-10">
             <div className="mx-auto flex max-w-[1120px] flex-col gap-10">
                 <SectionHeader
-                    eyebrow="NEW COLLECTION"
-                    title="Lux blazer"
+                    eyebrow="NEW ARRIVALS"
+                    title="Arabian Jubba"
                     ctaText="SEE ALL PRODUCTS"
-                    ctaHref="/shop/lux-blazer"
+                    ctaHref="/shop/all"
                 />
 
                 <div className="grid grid-cols-1 min-[810px]:grid-cols-2 min-[1200px]:grid-cols-3 gap-6 w-full">
@@ -71,22 +71,22 @@ export function ProductsSection() {
                             {/* Product Meta */}
                             <div className="flex w-full items-center justify-between gap-4">
                                 <div className="flex flex-col">
-                                    <p className="text-[18px] font-medium tracking-[-0.03em] leading-[1.4] text-[#121212]">
+                                    <p className="text-[17px] font-medium tracking-[-0.02em] leading-[1.3] text-[#121212] transition-colors duration-300 group-hover:text-gold">
                                         {product.title}
                                     </p>
-                                    <p className="text-[16px] font-light tracking-[-0.03em] leading-[1.5] text-[#4b4b4b]">
+                                    <p className="text-[14px] font-light tracking-[-0.02em] leading-[1.5] text-[#8f8f8f]">
                                         {product.category}
                                     </p>
                                 </div>
 
                                 <div className="flex flex-col items-end">
-                                    <div className="flex items-center text-[20px] font-medium tracking-[-0.03em] leading-[1.5] text-[#121212]">
-                                        <span>$</span>
-                                        <span>{product.price}</span>
+                                    <div className="flex items-center text-[18px] font-semibold tracking-tight text-gold">
+                                        <span>৳</span>
+                                        <span>{product.price.toLocaleString()}</span>
                                     </div>
-                                    <div className="flex items-center text-[16px] font-light tracking-[-0.03em] leading-[1.5] text-[#8f8f8f] line-through">
-                                        <span>$</span>
-                                        <span>{product.oldPrice}</span>
+                                    <div className="flex items-center text-[14px] font-light tracking-tight text-[#8f8f8f] line-through">
+                                        <span>৳</span>
+                                        <span>{product.oldPrice.toLocaleString()}</span>
                                     </div>
                                 </div>
                             </div>
