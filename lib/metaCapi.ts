@@ -7,6 +7,8 @@ interface CapiEventPayload {
     sourceUrl: string;
     clientIp?: string;
     clientUserAgent?: string;
+    fbp?: string;
+    fbc?: string;
     customer: {
         phone?: string;
         name?: string;
@@ -28,27 +30,39 @@ export async function sendMetaCapiEvent(payload: CapiEventPayload) {
     const accessToken = process.env.META_CONVERSIONS_API_ACCESS_TOKEN;
 
     if (!pixelId || !accessToken) {
-        return;
-    }
-
-    // Format Bangladeshi phone numbers to international standard (8801XXXXXXXXX)
-    let formattedPhone = payload.customer.phone?.replace(/[^0-9]/g, "") || "";
-    if (formattedPhone.startsWith("01")) {
-        formattedPhone = "88" + formattedPhone;
+        console.warn("⚠️ Meta CAPI: Missing NEXT_PUBLIC_FACEBOOK_PIXEL_ID or META_CONVERSIONS_API_ACCESS_TOKEN.");
+        return { success: false, error: "Missing API credentials" };
     }
 
     const userData: Record<string, any> = {};
-    if (formattedPhone) {
-        userData.ph = [hashValue(formattedPhone)];
+
+    // 1. Phone Normalization (Bangladeshi 8801XXXXXXXXX)
+    let rawPhone = payload.customer.phone?.replace(/[^0-9]/g, "") || "";
+    if (rawPhone.startsWith("01") && rawPhone.length === 11) {
+        rawPhone = "88" + rawPhone;
     }
-    if (payload.customer.name) {
-        userData.fn = [hashValue(payload.customer.name.split(" ")[0] || "")];
+    if (rawPhone.length >= 11) {
+        userData.ph = [hashValue(rawPhone)];
     }
+
+    // 2. First Name Hashing (Ensures no empty string hash is sent)
+    const firstName = payload.customer.name?.trim().split(/\s+/)[0];
+    if (firstName && firstName.length > 0) {
+        userData.fn = [hashValue(firstName)];
+    }
+
+    // 3. Client Context (Raw, unhashed per Meta specs)
     if (payload.clientIp) {
         userData.client_ip_address = payload.clientIp;
     }
     if (payload.clientUserAgent) {
         userData.client_user_agent = payload.clientUserAgent;
+    }
+    if (payload.fbp) {
+        userData.fbp = payload.fbp;
+    }
+    if (payload.fbc) {
+        userData.fbc = payload.fbc;
     }
 
     const testCode = process.env.META_TEST_EVENT_CODE;
@@ -80,11 +94,17 @@ export async function sendMetaCapiEvent(payload: CapiEventPayload) {
                 body: JSON.stringify(body),
             }
         );
+
         const data = await res.json();
+
         if (!res.ok) {
-            console.error("Meta CAPI Error:", data);
+            console.error("❌ Meta CAPI API Error:", data);
+            return { success: false, error: data };
         }
+
+        return { success: true, data };
     } catch (error) {
-        console.error("Meta CAPI Request Failed:", error);
+        console.error("❌ Meta CAPI Network Error:", error);
+        return { success: false, error };
     }
 }
