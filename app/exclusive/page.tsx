@@ -183,22 +183,6 @@ export default function ExclusiveFunnelPage() {
                     </noscript>
                 </>
             )}
-
-            {/* Top Header */}
-            <header className="sticky top-0 z-40 border-b border-gold/25 bg-white/95 px-4 py-3 backdrop-blur-md">
-                <div className="mx-auto flex max-w-[1020px] items-center justify-between">
-                    <Link href="/" className="font-serif-sc text-2xl font-bold tracking-widest text-[#121212]">
-                        NUSRAT<span className="text-gold">.</span>
-                    </Link>
-                    <button
-                        onClick={() => scrollToForm()}
-                        className="rounded border border-gold bg-gold px-5 py-2 text-xs font-bold uppercase tracking-wider text-[#121212] shadow-sm transition-all hover:bg-gold-hover hover:text-white"
-                    >
-                        অর্ডার করুন
-                    </button>
-                </div>
-            </header>
-
             <main className="mx-auto max-w-[880px] px-4 py-8 sm:px-6">
                 {orderComplete ? (
                     <div className="my-16 border-2 border-gold bg-white p-8 text-center shadow-xl">
@@ -238,7 +222,7 @@ export default function ExclusiveFunnelPage() {
                                 <span className="text-gold">অভিজ্ঞ কারিগরের নিখুঁত এমব্রয়ডারি</span>
                             </h1>
                             <p className="mt-2.5 max-w-lg text-sm leading-relaxed text-[#666666]">
-                                অভিজাত কালার কম্বিনেশন এবং প্রিমিয়াম কাটিংয়ে তৈরি প্রতিটি পিস
+                                Refined Embroidery • Premium Fabric • Double Threadwork
                             </p>
 
                             {/* Folded Panjabi Box */}
@@ -268,7 +252,7 @@ export default function ExclusiveFunnelPage() {
                                 কেন আমাদের পাঞ্জাবি অন্যদের চেয়ে আলাদা?
                             </h2>
                             <p className="mt-1 text-xs text-[#777777]">
-                                আমরা প্রতিটি পাঞ্জাবি তৈরিতে শতভাগ প্রিমিয়াম মেটেরিয়াল ও ফিনিশিং নিশ্চিত করি
+                                আমাদের প্রতিটি পাঞ্জাবি নিজস্ব দক্ষ কারিগর দ্বারা তৈরি হয়, যার ফলে প্রতিটি সেলাই আর ফিনিশিং থাকে নিখুঁত
                             </p>
 
                             <div className="mt-7 grid grid-cols-1 gap-4 sm:grid-cols-3 w-full">
@@ -440,8 +424,8 @@ export default function ExclusiveFunnelPage() {
                                                         key={prod.id}
                                                         onClick={() => setSelectedProductId(prod.id)}
                                                         className={`flex cursor-pointer items-center justify-between rounded-lg border p-3 transition-all ${isChecked
-                                                                ? "border-gold bg-gold/10 ring-1 ring-gold"
-                                                                : "border-[#ededed] bg-white hover:border-gold/40"
+                                                            ? "border-gold bg-gold/10 ring-1 ring-gold"
+                                                            : "border-[#ededed] bg-white hover:border-gold/40"
                                                             }`}
                                                     >
                                                         <div className="flex items-center gap-3">
@@ -476,8 +460,8 @@ export default function ExclusiveFunnelPage() {
                                                         type="button"
                                                         onClick={() => setSelectedSize(size)}
                                                         className={`rounded-md border py-2.5 text-center text-xs transition-all ${selectedSize === size
-                                                                ? "border-gold bg-gold text-[#121212] font-bold shadow-xs"
-                                                                : "border-[#ededed] bg-[#fafafa] text-[#4b4b4b] hover:border-gold/40"
+                                                            ? "border-gold bg-gold text-[#121212] font-bold shadow-xs"
+                                                            : "border-[#ededed] bg-[#fafafa] text-[#4b4b4b] hover:border-gold/40"
                                                             }`}
                                                     >
                                                         {size}
@@ -567,8 +551,8 @@ export default function ExclusiveFunnelPage() {
                                                     type="button"
                                                     onClick={() => setDeliveryArea("inside")}
                                                     className={`rounded-md border p-2.5 text-center text-xs transition-all ${deliveryArea === "inside"
-                                                            ? "border-gold bg-gold/15 font-bold text-[#121212] ring-1 ring-gold"
-                                                            : "border-[#ededed] bg-[#fafafa] text-[#4b4b4b]"
+                                                        ? "border-gold bg-gold/15 font-bold text-[#121212] ring-1 ring-gold"
+                                                        : "border-[#ededed] bg-[#fafafa] text-[#4b4b4b]"
                                                         }`}
                                                 >
                                                     <div>ঢাকা সিটির ভেতরে</div>
@@ -578,8 +562,8 @@ export default function ExclusiveFunnelPage() {
                                                     type="button"
                                                     onClick={() => setDeliveryArea("outside")}
                                                     className={`rounded-md border p-2.5 text-center text-xs transition-all ${deliveryArea === "outside"
-                                                            ? "border-gold bg-gold/15 font-bold text-[#121212] ring-1 ring-gold"
-                                                            : "border-[#ededed] bg-[#fafafa] text-[#4b4b4b]"
+                                                        ? "border-gold bg-gold/15 font-bold text-[#121212] ring-1 ring-gold"
+                                                        : "border-[#ededed] bg-[#fafafa] text-[#4b4b4b]"
                                                         }`}
                                                 >
                                                     <div>ঢাকা সিটির বাইরে</div>
