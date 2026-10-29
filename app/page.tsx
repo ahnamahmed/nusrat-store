@@ -6,7 +6,6 @@ import { ParallaxBanner } from "@/components/ParallaxBanner";
 import { FeaturedProductSection } from "@/components/FeaturedProductSection";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
 import { CategoryGrid } from "@/components/CategoryGrid";
-import { BlogSection } from "@/components/BlogSection";
 import { FaqSection } from "@/components/FaqSection";
 import { BenefitsBar } from "@/components/BenefitsBar";
 import { Footer } from "@/components/Footer";
@@ -24,7 +23,6 @@ export default function BataviaHomePage() {
         <FeaturedProductSection />
         <TestimonialsSection />
         <CategoryGrid />
-        <BlogSection />
         <FaqSection />
         <BenefitsBar />
         <Footer />

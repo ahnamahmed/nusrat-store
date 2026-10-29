@@ -8,6 +8,8 @@
   --color-gold-light: #DFCA95;
   --color-gold-dark: #82662C;
   --color-gold-tint: rgba(197, 160, 89, 0.12);
+
+  --font-bengali: var(--font-hind-siliguri), system-ui, sans-serif;
 }
 
 :root {
@@ -26,7 +28,7 @@
 }
 
 body {
-  font-family: var(--font-geist), sans-serif;
+  font-family: var(--font-geist), var(--font-hind-siliguri), sans-serif;
   color: var(--token-dark);
   background-color: var(--token-white);
 }

@@ -8,7 +8,6 @@ const NAV_LINKS = [
     { label: "SHOP", href: "/shop/all" },
     { label: "COLLECTIONS", href: "/shop/arabian-jubba" },
     { label: "OUR STORY", href: "/our-story" },
-    { label: "BLOG", href: "/blog" },
 ];
 
 export function Navbar() {

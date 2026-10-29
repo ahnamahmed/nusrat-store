@@ -1,6 +1,14 @@
 import type { Metadata } from "next";
 import { Cormorant_SC, Geist } from "next/font/google";
+import { Hind_Siliguri } from "next/font/google";
 import "./globals.css";
+
+const hindSiliguri = Hind_Siliguri({
+  weight: ["400", "500", "600", "700"],
+  subsets: ["bengali"],
+  variable: "--font-hind-siliguri",
+  display: "swap",
+});
 
 const cormorantSC = Cormorant_SC({
   subsets: ["latin"],
@@ -17,9 +25,9 @@ const geist = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Batavia - Timeless E-commerce Fashion Template",
+  title: "Nusrat - Traditional Clothing",
   description:
-    "Batavia is a template designed for fashion brands and trendsetters looking to upgrade their wardrobe with timeless clothes.",
+    "Nusrat is designed for your wardrobe with timeless clothes.",
 };
 
 export default function RootLayout({
@@ -28,7 +36,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${cormorantSC.variable} ${geist.variable}`}>
+    <html lang="en" className={`${cormorantSC.variable} ${geist.variable} ${hindSiliguri.variable}`}>
       <body className="bg-white text-[#121212] font-sans antialiased selection:bg-[#121212] selection:text-white">
         {children}
       </body>

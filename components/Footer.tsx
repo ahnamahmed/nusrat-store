@@ -64,8 +64,7 @@ export function Footer() {
                                 </p>
                                 <div className="flex flex-col gap-4 text-[16px] font-light tracking-[-0.03em]">
                                     <Link href="/our-story" className="hover:text-gold transition-colors">Our Story</Link>
-                                    <Link href="/blog" className="hover:text-gold transition-colors">Blog</Link>
-                                    <Link href="/contact" className="hover:text-gold transition-colors">Contact Us</Link>
+                                    <Link href="./contact" className="hover:text-gold transition-colors">Contact Us</Link>
                                     <Link href="/faq" className="hover:text-gold transition-colors">FAQ</Link>
                                 </div>
                             </div>
@@ -77,9 +76,9 @@ export function Footer() {
                                 LEGAL
                             </p>
                             <div className="flex flex-col gap-4 text-[16px] font-light tracking-[-0.03em]">
-                                <Link href="/privacy" className="hover:text-gold transition-colors">Privacy Policy</Link>
-                                <Link href="/terms" className="hover:text-gold transition-colors">Terms & Conditions</Link>
-                                <Link href="/returns" className="hover:text-gold transition-colors">Returns & Exchanges</Link>
+                                <Link href="./privacy-policy" className="hover:text-gold transition-colors">Privacy Policy</Link>
+                                <Link href="./terms-and-conditions" className="hover:text-gold transition-colors">Terms & Conditions</Link>
+                                <Link href="./returns-and-exchanges" className="hover:text-gold transition-colors">Returns & Exchanges</Link>
                             </div>
                         </div>
                     </div>
