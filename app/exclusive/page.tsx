@@ -63,7 +63,7 @@ export default function ExclusiveFunnelPage() {
     const [hasTrackedCheckout, setHasTrackedCheckout] = useState(false);
 
     const selectedProduct = PRODUCTS.find((p) => p.id === selectedProductId) || PRODUCTS[0];
-    const deliveryCharge = deliveryArea === "inside" ? 70 : 130;
+    const deliveryCharge = deliveryArea === "inside" ? 80 : 110;
     const subtotal = selectedProduct.price * quantity;
     const grandTotal = subtotal + deliveryCharge;
 
@@ -186,7 +186,7 @@ export default function ExclusiveFunnelPage() {
                             আপনার অর্ডারটি সফল হয়েছে!
                         </h1>
                         <p className="mt-1.5 text-xs sm:text-sm text-[#4b4b4b]">
-                            ধন্যবাদ <strong>{customerName}</strong>! প্রতিনিধি খুব দ্রুত কল করে অর্ডার কনফার্ম করবেন।
+                            ধন্যবাদ <strong>{customerName}</strong>! আমাদের প্রতিনিধি খুব দ্রুত কল করে অর্ডার কনফার্ম করবেন।
                         </p>
                         <div className="mx-auto mt-5 max-w-sm rounded border border-[#ededed] bg-[#fafafa] p-3 text-left text-xs leading-relaxed">
                             <p>আইটেম: <strong>{selectedProduct.name}</strong></p>
