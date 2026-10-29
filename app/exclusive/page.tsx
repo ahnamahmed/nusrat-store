@@ -227,6 +227,7 @@ export default function ExclusiveFunnelPage() {
                                         fill
                                         priority
                                         sizes="(max-width: 640px) 100vw, 480px"
+                                        quality={80}
                                         className="object-cover object-center"
                                     />
                                 </div>
