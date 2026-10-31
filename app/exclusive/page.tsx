@@ -42,7 +42,7 @@ const PRODUCTS: ProductItem[] = [
     },
 ];
 
-const SIZES = ["M (৪০)", "L (৪২)", "XL (৪৪)", "XXL (৪৬)"];
+const SIZES = ["S (৪০)", "M (৪২)", "L (৪৪)", "XL (৪৬)"];
 
 export default function ExclusiveFunnelPage() {
     const formRef = useRef<HTMLDivElement>(null);
