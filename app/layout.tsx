@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Cormorant_SC, Geist } from "next/font/google";
 import { Hind_Siliguri } from "next/font/google";
 import "./globals.css";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const hindSiliguri = Hind_Siliguri({
   weight: ["400", "500", "600", "700"],
@@ -39,6 +40,7 @@ export default function RootLayout({
     <html lang="en" className={`${cormorantSC.variable} ${geist.variable} ${hindSiliguri.variable}`}>
       <body className="bg-white text-[#121212] font-sans antialiased selection:bg-[#121212] selection:text-white">
         {children}
+        <SpeedInsights />
       </body>
     </html>
   );
