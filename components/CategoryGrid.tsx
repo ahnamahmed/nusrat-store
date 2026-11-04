@@ -3,17 +3,17 @@ import { CornerBrackets } from "./CornerBrackets";
 
 const CATEGORIES = [
     {
-        title: "LUX BLAZER",
+        title: "Thobe",
         href: "/shop/lux-blazer",
         image: "https://framerusercontent.com/images/otVZiHJiKaAnE0b5isBNq4aILGo.jpeg?width=800&height=1200",
     },
     {
-        title: "ONE PIECE",
+        title: "Embroidery Panjabi",
         href: "/shop/one-piece",
         image: "https://framerusercontent.com/images/tMmGAHlf23sBQcfidBA0MK096KI.jpeg?width=906&height=1200",
     },
     {
-        title: "BATAVIA ESSENTIALS",
+        title: "Designed Panjabi",
         href: "/shop/batavia-essentials",
         image: "https://framerusercontent.com/images/UBsyFIAvzS76eDApmmCYVo365mM.jpg?width=1920&height=2880",
     },

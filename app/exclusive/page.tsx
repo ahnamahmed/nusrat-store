@@ -729,8 +729,8 @@ export default function ExclusiveFunnelPage() {
                 </div>
                 <p className="mt-2">
                     সরাসরি যোগাযোগ জন্য কল করুন:{" "}
-                    <a href="tel:+8801924272664" className="text-gold font-semibold underline">
-                        +8801924272664
+                    <a href="tel:+8801869493334" className="text-gold font-semibold underline">
+                        +8801869493334
                     </a>
                 </p>
             </footer>

@@ -4,29 +4,29 @@ import { useState } from "react";
 
 const FAQS = [
     {
-        question: "How to place an order in an online store?",
+        question: "Can I check the product before paying?",
         answer:
-            "To place an order in our online store, simply browse our products and add your desired items to the cart. Once you're ready, go to your cart, review your selections, and proceed to checkout. Enter your shipping details, choose a payment method, and confirm your order. After completing the payment, you'll receive a confirmation email with your order details.",
+            "Yes. We offer Cash on Delivery nationwide. When the delivery rider arrives, you can open the parcel, inspect the fabric, embroidery, and finish to ensure everything meets your expectations, and then pay the total amount.",
     },
     {
-        question: "How much does the delivery cost?",
+        question: "How do I know which size will fit me best?",
         answer:
-            "The delivery cost depends on your location and the shipping method selected at checkout. You can view the exact shipping fees before completing your purchase.",
+            "Our detailed Size Guide located on every product page, which maps out measurements based on height and chest size. If you are unsure between two sizes, feel free to contact us via WhatsApp or Messenger—our team will recommend the exact fit for your body.",
     },
     {
-        question: "What are the delivery methods?",
+        question: "What is your exchange policy if the size does not fit?",
         answer:
-            "We offer several delivery methods, including standard shipping, express shipping, and same-day delivery (where available). The available options will be shown at checkout based on your location.",
+            "If there is any sizing mismatch, you can request an exchange within 48 hours of delivery. The item must be unused, unwashed, and in its original condition with the signature gift box and tags intact. Contact our support line to arrange an exchange parcel.",
     },
     {
-        question: "How do I find out the availability of goods in the store?",
+        question: "How long does delivery take, and what are the delivery charges?",
+        answer:
+            "Inside Dhaka, delivery typically takes 24–48 hours (৳80). For deliveries outside Dhaka, parcels arrive within 2–4 business days (৳110). You will receive an automated tracking update as soon as your parcel is dispatched.",
+    },
+    {
+        question: "How do I find out the availability of product in the store?",
         answer:
             "You can check the availability of goods directly on the product page. If an item is out of stock, it will be indicated on the page. For further inquiries, feel free to contact our support team.",
-    },
-    {
-        question: "How to exchange or return the goods?",
-        answer:
-            "To exchange or return an item, please visit our Returns & Exchanges page and follow the provided instructions. Ensure the item is in its original condition and packaging. If you have any questions, feel free to contact our support team.",
     },
 ];
 
@@ -66,8 +66,8 @@ export function FaqSection() {
 
                                     <div
                                         className={`grid transition-all duration-300 ease-in-out ${isOpen
-                                                ? "grid-rows-[1fr] opacity-100 pt-2.5"
-                                                : "grid-rows-[0fr] opacity-0"
+                                            ? "grid-rows-[1fr] opacity-100 pt-2.5"
+                                            : "grid-rows-[0fr] opacity-0"
                                             }`}
                                     >
                                         <div className="overflow-hidden">

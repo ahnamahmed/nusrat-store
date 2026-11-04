@@ -27,7 +27,7 @@ const geist = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Nusrat - Traditional Clothing",
+  title: "Nusrat Collection",
   description:
     "Nusrat is designed for your wardrobe with timeless clothes.",
 };
