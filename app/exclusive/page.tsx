@@ -44,11 +44,14 @@ const PRODUCTS: ProductItem[] = [
 
 const SIZES = ["S (৪০)", "M (৪২)", "L (৪৪)", "XL (৪৬)"];
 
+const APPS_SCRIPT_URL =
+    process.env.NEXT_PUBLIC_APPS_SCRIPT_URL || "YOUR_DEPLOYED_APPS_SCRIPT_URL";
+
 export default function ExclusiveFunnelPage() {
     const formRef = useRef<HTMLDivElement>(null);
 
     const [selectedProductId, setSelectedProductId] = useState<string>(PRODUCTS[0].id);
-    const [selectedSize, setSelectedSize] = useState<string>("L (৪২)");
+    const [selectedSize, setSelectedSize] = useState<string>("L (৪৪)"); // Fixed: correctly matches SIZES array
     const [quantity, setQuantity] = useState<number>(1);
     const [deliveryArea, setDeliveryArea] = useState<"inside" | "outside">("inside");
 
@@ -56,16 +59,28 @@ export default function ExclusiveFunnelPage() {
     const [customerPhone, setCustomerPhone] = useState("");
     const [customerAddress, setCustomerAddress] = useState("");
 
+    // Anti-bot honeypot field
+    const [honeypot, setHoneypot] = useState("");
+
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [orderComplete, setOrderComplete] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [eventId] = useState(() => "order_" + Date.now() + "_" + Math.floor(Math.random() * 1000));
     const [hasTrackedCheckout, setHasTrackedCheckout] = useState(false);
 
+    // State for Abandoned Lead & Newsletter
+    const [hasCapturedAbandoned, setHasCapturedAbandoned] = useState(false);
+    const [newsletterEmail, setNewsletterEmail] = useState("");
+    const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+
     const selectedProduct = PRODUCTS.find((p) => p.id === selectedProductId) || PRODUCTS[0];
     const deliveryCharge = deliveryArea === "inside" ? 80 : 110;
     const subtotal = selectedProduct.price * quantity;
     const grandTotal = subtotal + deliveryCharge;
+
+    const scrollToProducts = () => {
+        document.getElementById("products-section")?.scrollIntoView({ behavior: "smooth" });
+    };
 
     const scrollToForm = (productId?: string) => {
         if (productId) setSelectedProductId(productId);
@@ -85,6 +100,64 @@ export default function ExclusiveFunnelPage() {
         }
     };
 
+    // Captures abandoned cart leads when user exits phone field
+    const handlePhoneBlur = async () => {
+        const cleanPhone = customerPhone.replace(/[^0-9]/g, "");
+        const phoneRegex = /^01[3-9]\d{8}$/;
+
+        if (phoneRegex.test(cleanPhone) && !hasCapturedAbandoned && !orderComplete) {
+            setHasCapturedAbandoned(true);
+            try {
+                await fetch(APPS_SCRIPT_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({
+                        type: "abandoned",
+                        phone: cleanPhone,
+                        name: customerName.trim(),
+                        color: selectedProduct.name,
+                        size: selectedSize,
+                    }),
+                });
+            } catch {
+                // Background tracking fails silently
+            }
+        }
+    };
+
+    const handleNewsletterSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!newsletterEmail.trim()) return;
+
+        setNewsletterStatus("loading");
+        try {
+            const res = await fetch(APPS_SCRIPT_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify({
+                    email: newsletterEmail.trim(),
+                    source: "Exclusive Funnel Footer Newsletter",
+                    subscribedAt: new Date().toLocaleString("en-US", { timeZone: "Asia/Dhaka" }),
+                }),
+            });
+
+            if (res.ok) {
+                setNewsletterStatus("success");
+                setNewsletterEmail("");
+                if (typeof window !== "undefined" && (window as any).fbq) {
+                    (window as any).fbq("track", "Subscribe", {
+                        value: 0,
+                        currency: "BDT",
+                    });
+                }
+            } else {
+                setNewsletterStatus("error");
+            }
+        } catch {
+            setNewsletterStatus("error");
+        }
+    };
+
     const handleOrderSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
@@ -95,19 +168,6 @@ export default function ExclusiveFunnelPage() {
             setErrorMessage("অনুগ্রহ করে একটি সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন (যেমন: 017xxxxxxxx)");
             setIsSubmitting(false);
             return;
-        }
-
-        if (typeof window !== "undefined" && (window as any).fbq) {
-            (window as any).fbq(
-                "track",
-                "Purchase",
-                {
-                    content_name: selectedProduct.name,
-                    currency: "BDT",
-                    value: grandTotal,
-                },
-                { eventID: eventId }
-            );
         }
 
         try {
@@ -125,6 +185,7 @@ export default function ExclusiveFunnelPage() {
                     address: customerAddress,
                     area: deliveryArea === "inside" ? "Inside Dhaka" : "Outside Dhaka",
                 },
+                website_hp: honeypot, // Honeypot spam defense
                 source: "High-Converting Sales Funnel",
             };
 
@@ -135,6 +196,19 @@ export default function ExclusiveFunnelPage() {
             });
 
             if (res.ok) {
+                // Track Purchase ONLY upon successful backend submission
+                if (typeof window !== "undefined" && (window as any).fbq) {
+                    (window as any).fbq(
+                        "track",
+                        "Purchase",
+                        {
+                            content_name: selectedProduct.name,
+                            currency: "BDT",
+                            value: grandTotal,
+                        },
+                        { eventID: eventId }
+                    );
+                }
                 setOrderComplete(true);
             } else {
                 setErrorMessage("অর্ডার সম্পন্ন করা যায়নি। অনুগ্রহ করে পুনরায় চেষ্টা করুন।");
@@ -150,7 +224,7 @@ export default function ExclusiveFunnelPage() {
         <div className="min-h-screen bg-[#FCFAF6] font-bengali text-[#121212] selection:bg-gold selection:text-black">
             {process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID && (
                 <>
-                    <Script id="meta-pixel-init" strategy="afterInteractive">
+                    <Script id="meta-pixel-init" strategy="lazyOnload">
                         {`
               !function(f,b,e,v,n,t,s)
               {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -191,7 +265,9 @@ export default function ExclusiveFunnelPage() {
                         <div className="mx-auto mt-5 max-w-sm rounded border border-[#ededed] bg-[#fafafa] p-3 text-left text-xs leading-relaxed">
                             <p>আইটেম: <strong>{selectedProduct.name}</strong></p>
                             <p>সাইজ: <strong>{selectedSize}</strong> ({quantity} টি)</p>
-                            <p>এলাকা: <strong>{deliveryArea === "inside" ? "ঢাকা সিটি (৳৭০)" : "ঢাকার বাইরে (৳১৩০)"}</strong></p>
+                            <p>
+                                এলাকা: <strong>{deliveryArea === "inside" ? "ঢাকা সিটি (৳৮০)" : "ঢাকার বাইরে (৳১১০)"}</strong>
+                            </p>
                             <p className="mt-2 text-xs font-bold text-gold">
                                 সর্বমোট প্রদেয়: ৳{grandTotal.toLocaleString()} (ক্যাশ অন ডেলিভারি)
                             </p>
@@ -234,10 +310,11 @@ export default function ExclusiveFunnelPage() {
                             </div>
 
                             <button
-                                onClick={() => scrollToForm()}
+                                type="button"
+                                onClick={scrollToProducts}
                                 className="mt-4 inline-flex items-center justify-center rounded-full border border-gold bg-gold px-6 py-2 text-[11px] font-bold tracking-wider text-[#121212] uppercase shadow-xs transition-all hover:bg-gold-hover hover:text-white"
                             >
-                                অর্ডার করতে নিচে ক্লিক করুন
+                                এক্সক্লুসিভ কালেকশন দেখুন
                             </button>
                         </section>
 
@@ -251,7 +328,7 @@ export default function ExclusiveFunnelPage() {
                             </p>
 
                             <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3 w-full">
-                                {/* Card 1: Premium Fabric (Complete Textile Weave Swatch) */}
+                                {/* Card 1: Premium Fabric */}
                                 <div className="flex flex-col items-center rounded-lg border border-gold/20 bg-white p-4 shadow-2xs">
                                     <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-gold/15 text-gold">
                                         <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
@@ -268,16 +345,13 @@ export default function ExclusiveFunnelPage() {
                                     </p>
                                 </div>
 
-                                {/* Card 2: Artisan Handwork (Continuous Needle & Embroidery Thread) */}
+                                {/* Card 2: Refined Embroidery */}
                                 <div className="flex flex-col items-center rounded-lg border border-gold/20 bg-white p-4 shadow-2xs">
                                     <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-gold/15 text-gold">
                                         <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-                                            {/* Solid needle shaft */}
                                             <line x1="4" y1="20" x2="15" y2="9" strokeLinecap="round" />
-                                            {/* Needle head & eye loop */}
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M14 10l3-3a1.5 1.5 0 0 1 2.12 2.12l-3 3" />
                                             <circle cx="17.2" cy="6.8" r="0.8" fill="currentColor" />
-                                            {/* Continuous embroidery thread flowing from needle eye */}
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M17.2 6.8C20 3.5 15 2 12 4.5S8.5 9 11 11.5s5 2.5 4 5.5-3.5 3.5-6.5 2" />
                                         </svg>
                                     </div>
@@ -287,16 +361,13 @@ export default function ExclusiveFunnelPage() {
                                     </p>
                                 </div>
 
-                                {/* Card 3: Semi-Slim Comfort Fit (Fully Connected Tailor Scissors) */}
+                                {/* Card 3: Comfort Finishing */}
                                 <div className="flex flex-col items-center rounded-lg border border-gold/20 bg-white p-4 shadow-2xs">
                                     <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-gold/15 text-gold">
                                         <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-                                            {/* Scissor handles */}
                                             <circle cx="6" cy="6" r="3" />
                                             <circle cx="6" cy="18" r="3" />
-                                            {/* Full blade 1 */}
                                             <line x1="20" y1="4" x2="8.12" y2="15.88" strokeLinecap="round" />
-                                            {/* Full blade 2 crossing through pivot */}
                                             <line x1="8.12" y1="8.12" x2="12" y2="12" strokeLinecap="round" />
                                             <line x1="14.47" y1="14.48" x2="20" y2="20" strokeLinecap="round" />
                                         </svg>
@@ -310,7 +381,7 @@ export default function ExclusiveFunnelPage() {
                         </section>
 
                         {/* Product Showcase */}
-                        <section className="flex flex-col items-center">
+                        <section id="products-section" className="flex flex-col items-center scroll-mt-6">
                             <h2 className="text-lg sm:text-2xl font-bold text-[#121212]">
                                 আমাদের এক্সক্লুসিভ কালেকশন
                             </h2>
@@ -421,7 +492,7 @@ export default function ExclusiveFunnelPage() {
                                 </table>
 
                                 <p className="mt-3 text-[10px] text-[#777777]">
-                                    * আপনি সাধারণত যে সাইজের রেগুলার শার্ট বা পাঞ্জাবি পরেন, সেই সাইজটি বেছে নিন। সাইজে সমস্যা হলে ২ দিনে এক্সচেঞ্জ সুবিধা রয়েছে।
+                                    * আপনি সাধারণত যে সাইজের রেগুলার শার্ট বা পাঞ্জাবি পরেন, সেই সাইজটি বেছে নিন। সাইজে সমস্যা হলে ২ দিনে এক্সচেঞ্জ সুবিধা রয়েছে।
                                 </p>
                             </div>
                         </section>
@@ -432,79 +503,46 @@ export default function ExclusiveFunnelPage() {
                                 পাঞ্জাবির সাথে পাচ্ছেন সিগনেচার গিফট বক্স
                             </h3>
                             <p className="mt-1 text-[11px] text-[#555555]">
-                                নিজেকে উপহার দিতে অথবা প্রিয়জনকে পাঠানোর জন্য প্রিমিয়াম প্যাকেজ
+                                নিজের জন্য অথবা প্রিয়জনকে উপহার দিতে প্রিমিয়াম প্যাকেজ
                             </p>
                             <div className="mt-3 inline-block rounded-full border border-gold/40 bg-white px-4 py-1 text-[11px] font-bold text-gold">
                                 প্রতিটি অর্ডারের সাথে প্রিমিয়াম গিফট বক্স ফ্রি!
                             </div>
                         </section>
 
-                        {/* Section 5: Trust Badges */}
-
+                        {/* Trust Badges */}
                         <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-
                             <div className="flex flex-col items-center rounded-xl border border-gold/15 bg-white p-4 text-center shadow-xs">
-
                                 <svg className="h-6 w-6 text-gold" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.25V3.75m0 3.75h4.5m-4.5 0v3.75m0 0h4.5" />
-
                                 </svg>
-
                                 <span className="mt-2 text-xs font-bold text-[#121212]">Home Delivery</span>
-
                                 <span className="text-[10px] text-[#777777]">সারা বাংলাদেশে হোম ডেলিভারি</span>
-
                             </div>
 
-
-
                             <div className="flex flex-col items-center rounded-xl border border-gold/15 bg-white p-4 text-center shadow-xs">
-
                                 <svg className="h-6 w-6 text-gold" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
-
                                 </svg>
-
                                 <span className="mt-2 text-xs font-bold text-[#121212]">Parcel Check</span>
-
                                 <span className="text-[10px] text-[#777777]">বক্স খুলে দেখে নেওয়ার সুযোগ</span>
-
                             </div>
 
-
-
                             <div className="flex flex-col items-center rounded-xl border border-gold/15 bg-white p-4 text-center shadow-xs">
-
                                 <svg className="h-6 w-6 text-gold" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-
                                 </svg>
-
                                 <span className="mt-2 text-xs font-bold text-[#121212]">Size Exchange</span>
-
                                 <span className="text-[10px] text-[#777777]">সাইজ সমস্যা হলে ২ দিনে এক্সচেঞ্জ</span>
-
                             </div>
-
-
 
                             <div className="flex flex-col items-center rounded-xl border border-gold/15 bg-white p-4 text-center shadow-xs">
-
                                 <svg className="h-6 w-6 text-gold" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
-
                                 </svg>
-
                                 <span className="mt-2 text-xs font-bold text-[#121212]">Direct Support</span>
-
                                 <span className="text-[10px] text-[#777777]">২৪/৭ কল সাপোর্ট</span>
-
                             </div>
-
                         </section>
 
                         {/* Form Section */}
@@ -519,8 +557,19 @@ export default function ExclusiveFunnelPage() {
                             </div>
 
                             <form onSubmit={handleOrderSubmit} onFocus={trackInitiateCheckout} className="mt-5 flex flex-col gap-6">
-                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-12 sm:items-start">
+                                {/* Anti-bot Honeypot */}
+                                <div className="hidden" aria-hidden="true">
+                                    <input
+                                        type="text"
+                                        name="website_hp"
+                                        tabIndex={-1}
+                                        autoComplete="off"
+                                        value={honeypot}
+                                        onChange={(e) => setHoneypot(e.target.value)}
+                                    />
+                                </div>
 
+                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-12 sm:items-start">
                                     {/* Left Column: Product Selection */}
                                     <div className="flex flex-col gap-3 sm:col-span-5 border-b border-[#ededed] pb-5 sm:border-b-0 sm:border-r sm:pr-5">
                                         <span className="text-[11px] font-bold uppercase tracking-wider text-[#121212]">
@@ -631,6 +680,7 @@ export default function ExclusiveFunnelPage() {
                                                 required
                                                 value={customerPhone}
                                                 onChange={(e) => setCustomerPhone(e.target.value)}
+                                                onBlur={handlePhoneBlur}
                                                 placeholder="১১ ডিজিটের মোবাইল নম্বর দিন (017...)"
                                                 className="h-10 w-full rounded border border-[#ededed] bg-[#fafafa] px-3 text-xs text-[#121212] outline-none focus:border-gold focus:bg-white"
                                             />
@@ -715,6 +765,45 @@ export default function ExclusiveFunnelPage() {
                     </div>
                 )}
             </main>
+
+            {/* Newsletter Subscription Section */}
+            <section className="border-t border-[#ededed] bg-[#FAF8F5] py-8 text-center px-4">
+                <div className="mx-auto max-w-md">
+                    <h4 className="text-sm font-bold text-[#121212] uppercase tracking-wider">
+                        নতুন অফার ও কালেকশনের আপডেট পান
+                    </h4>
+                    <p className="mt-1 text-[11px] text-[#666666]">
+                        আমাদের এক্সক্লুসিভ ডিসকাউন্ট ও নতুন পাঞ্জাবি লঞ্চের নোটিফিকেশন পেতে ইমেইল সাবস্ক্রাইব করুন
+                    </p>
+                    <form onSubmit={handleNewsletterSubmit} className="mt-3.5 flex gap-2">
+                        <input
+                            type="email"
+                            required
+                            value={newsletterEmail}
+                            onChange={(e) => setNewsletterEmail(e.target.value)}
+                            placeholder="আপনার ইমেইল অ্যাড্রেস লিখুন"
+                            className="h-9 flex-1 rounded border border-[#dedede] bg-white px-3 text-xs text-[#121212] outline-none focus:border-gold"
+                        />
+                        <button
+                            type="submit"
+                            disabled={newsletterStatus === "loading"}
+                            className="h-9 rounded border border-gold bg-gold px-4 text-xs font-bold uppercase tracking-wider text-[#121212] hover:bg-gold-hover hover:text-white disabled:opacity-50 transition-all"
+                        >
+                            {newsletterStatus === "loading" ? "..." : "যুক্ত হোন"}
+                        </button>
+                    </form>
+                    {newsletterStatus === "success" && (
+                        <p className="mt-2 text-xs font-semibold text-emerald-600">
+                            ✓ ধন্যবাদ! আপনার ইমেইল সফলভাবে যুক্ত হয়েছে।
+                        </p>
+                    )}
+                    {newsletterStatus === "error" && (
+                        <p className="mt-2 text-xs text-red-500">
+                            সাবস্ক্রাইব করা যায়নি। অনুগ্রহ করে পুনরায় চেষ্টা করুন।
+                        </p>
+                    )}
+                </div>
+            </section>
 
             {/* Footer */}
             <footer className="border-t border-[#ededed] bg-white py-6 text-center text-xs text-[#8f8f8f]">

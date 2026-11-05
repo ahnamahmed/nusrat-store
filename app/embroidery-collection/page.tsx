@@ -59,13 +59,16 @@ export default function ExclusiveFunnelPage() {
     const formRef = useRef<HTMLDivElement>(null);
 
     const [selectedProductId, setSelectedProductId] = useState<string>(PRODUCTS[0].id);
-    const [selectedSize, setSelectedSize] = useState<string>("L (৪২)");
+    const [selectedSize, setSelectedSize] = useState<string>("L (৪৪)"); // Fixed: correctly matches SIZES array
     const [quantity, setQuantity] = useState<number>(1);
     const [deliveryArea, setDeliveryArea] = useState<"inside" | "outside">("inside");
 
     const [customerName, setCustomerName] = useState("");
     const [customerPhone, setCustomerPhone] = useState("");
     const [customerAddress, setCustomerAddress] = useState("");
+
+    // Anti-bot honeypot field
+    const [honeypot, setHoneypot] = useState("");
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [orderComplete, setOrderComplete] = useState(false);
@@ -82,6 +85,10 @@ export default function ExclusiveFunnelPage() {
     const deliveryCharge = deliveryArea === "inside" ? 80 : 110;
     const subtotal = selectedProduct.price * quantity;
     const grandTotal = subtotal + deliveryCharge;
+
+    const scrollToProducts = () => {
+        document.getElementById("products-section")?.scrollIntoView({ behavior: "smooth" });
+    };
 
     const scrollToForm = (productId?: string) => {
         if (productId) setSelectedProductId(productId);
@@ -101,7 +108,6 @@ export default function ExclusiveFunnelPage() {
         }
     };
 
-    // Triggered silently when the customer leaves the phone field
     const handlePhoneBlur = async () => {
         const cleanPhone = customerPhone.replace(/[^0-9]/g, "");
         const phoneRegex = /^01[3-9]\d{8}$/;
@@ -145,6 +151,12 @@ export default function ExclusiveFunnelPage() {
             if (res.ok) {
                 setNewsletterStatus("success");
                 setNewsletterEmail("");
+                if (typeof window !== "undefined" && (window as any).fbq) {
+                    (window as any).fbq("track", "Subscribe", {
+                        value: 0,
+                        currency: "BDT",
+                    });
+                }
             } else {
                 setNewsletterStatus("error");
             }
@@ -165,19 +177,6 @@ export default function ExclusiveFunnelPage() {
             return;
         }
 
-        if (typeof window !== "undefined" && (window as any).fbq) {
-            (window as any).fbq(
-                "track",
-                "Purchase",
-                {
-                    content_name: selectedProduct.name,
-                    currency: "BDT",
-                    value: grandTotal,
-                },
-                { eventID: eventId }
-            );
-        }
-
         try {
             const payload = {
                 eventId,
@@ -193,6 +192,7 @@ export default function ExclusiveFunnelPage() {
                     address: customerAddress,
                     area: deliveryArea === "inside" ? "Inside Dhaka" : "Outside Dhaka",
                 },
+                website_hp: honeypot, // Honeypot validation
                 source: "High-Converting Sales Funnel",
             };
 
@@ -203,6 +203,19 @@ export default function ExclusiveFunnelPage() {
             });
 
             if (res.ok) {
+                // Trigger Meta Purchase tracking ONLY upon successful order creation
+                if (typeof window !== "undefined" && (window as any).fbq) {
+                    (window as any).fbq(
+                        "track",
+                        "Purchase",
+                        {
+                            content_name: selectedProduct.name,
+                            currency: "BDT",
+                            value: grandTotal,
+                        },
+                        { eventID: eventId }
+                    );
+                }
                 setOrderComplete(true);
             } else {
                 setErrorMessage("অর্ডার সম্পন্ন করা যায়নি। অনুগ্রহ করে পুনরায় চেষ্টা করুন।");
@@ -218,7 +231,7 @@ export default function ExclusiveFunnelPage() {
         <div className="min-h-screen bg-[#FCFAF6] font-bengali text-[#121212] selection:bg-gold selection:text-black">
             {process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID && (
                 <>
-                    <Script id="meta-pixel-init" strategy="afterInteractive">
+                    <Script id="meta-pixel-init" strategy="lazyOnload">
                         {`
               !function(f,b,e,v,n,t,s)
               {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -259,7 +272,9 @@ export default function ExclusiveFunnelPage() {
                         <div className="mx-auto mt-5 max-w-sm rounded border border-[#ededed] bg-[#fafafa] p-3 text-left text-xs leading-relaxed">
                             <p>আইটেম: <strong>{selectedProduct.name}</strong></p>
                             <p>সাইজ: <strong>{selectedSize}</strong> ({quantity} টি)</p>
-                            <p>এলাকা: <strong>{deliveryArea === "inside" ? "ঢাকা সিটি (৳৭০)" : "ঢাকার বাইরে (৳১৩০)"}</strong></p>
+                            <p>
+                                এলাকা: <strong>{deliveryArea === "inside" ? "ঢাকা সিটি (৳৮০)" : "ঢাকার বাইরে (৳১১০)"}</strong>
+                            </p>
                             <p className="mt-2 text-xs font-bold text-gold">
                                 সর্বমোট প্রদেয়: ৳{grandTotal.toLocaleString()} (ক্যাশ অন ডেলিভারি)
                             </p>
@@ -301,11 +316,13 @@ export default function ExclusiveFunnelPage() {
                                 </div>
                             </div>
 
+                            {/* Hero Button scrolling to product collection */}
                             <button
-                                onClick={() => scrollToForm()}
+                                type="button"
+                                onClick={scrollToProducts}
                                 className="mt-4 inline-flex items-center justify-center rounded-full border border-gold bg-gold px-6 py-2 text-[11px] font-bold tracking-wider text-[#121212] uppercase shadow-xs transition-all hover:bg-gold-hover hover:text-white"
                             >
-                                অর্ডার করতে নিচে ক্লিক করুন
+                                এক্সক্লুসিভ কালেকশন দেখুন
                             </button>
                         </section>
 
@@ -336,7 +353,7 @@ export default function ExclusiveFunnelPage() {
                                     </p>
                                 </div>
 
-                                {/* Card 2: Artisan Handwork */}
+                                {/* Card 2: Refined Embroidery */}
                                 <div className="flex flex-col items-center rounded-lg border border-gold/20 bg-white p-4 shadow-2xs">
                                     <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-gold/15 text-gold">
                                         <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
@@ -352,7 +369,7 @@ export default function ExclusiveFunnelPage() {
                                     </p>
                                 </div>
 
-                                {/* Card 3: Semi-Slim Comfort Fit */}
+                                {/* Card 3: Fine Finishing */}
                                 <div className="flex flex-col items-center rounded-lg border border-gold/20 bg-white p-4 shadow-2xs">
                                     <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-gold/15 text-gold">
                                         <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
@@ -371,8 +388,8 @@ export default function ExclusiveFunnelPage() {
                             </div>
                         </section>
 
-                        {/* Product Showcase */}
-                        <section className="flex flex-col items-center">
+                        {/* Product Showcase Section */}
+                        <section id="products-section" className="flex flex-col items-center scroll-mt-6">
                             <h2 className="text-lg sm:text-2xl font-bold text-[#121212]">
                                 আমাদের এক্সক্লুসিভ কালেকশন
                             </h2>
@@ -380,7 +397,7 @@ export default function ExclusiveFunnelPage() {
                                 পছন্দের ডিজাইনটি বেছে নিয়ে সরাসরি অর্ডার করুন
                             </p>
 
-                            <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3 w-full">
+                            <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4 w-full">
                                 {PRODUCTS.map((prod) => (
                                     <div
                                         key={prod.id}
@@ -483,7 +500,7 @@ export default function ExclusiveFunnelPage() {
                                 </table>
 
                                 <p className="mt-3 text-[10px] text-[#777777]">
-                                    * আপনি সাধারণত যে সাইজের রেগুলার শার্ট বা পাঞ্জাবি পরেন, সেই সাইজটি বেছে নিন। সাইজে সমস্যা হলে ২ দিনে এক্সচেঞ্জ সুবিধা রয়েছে।
+                                    * আপনি সাধারণত যে সাইজের রেগুলার শার্ট বা পাঞ্জাবি পরেন, সেই সাইজটি বেছে নিন। সাইজে সমস্যা হলে ফ্রি এক্সচেঞ্জ সুবিধা রয়েছে।
                                 </p>
                             </div>
                         </section>
@@ -494,14 +511,14 @@ export default function ExclusiveFunnelPage() {
                                 পাঞ্জাবির সাথে পাচ্ছেন সিগনেচার গিফট বক্স
                             </h3>
                             <p className="mt-1 text-[11px] text-[#555555]">
-                                নিজেকে উপহার দিতে অথবা প্রিয়জনকে পাঠানোর জন্য প্রিমিয়াম প্যাকেজ
+                                নিজের জন্য অথবা প্রিয়জনকে উপহার দিতে প্রিমিয়াম প্যাকেজ
                             </p>
                             <div className="mt-3 inline-block rounded-full border border-gold/40 bg-white px-4 py-1 text-[11px] font-bold text-gold">
                                 প্রতিটি অর্ডারের সাথে প্রিমিয়াম গিফট বক্স ফ্রি!
                             </div>
                         </section>
 
-                        {/* Section 5: Trust Badges */}
+                        {/* Trust Badges */}
                         <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                             <div className="flex flex-col items-center rounded-xl border border-gold/15 bg-white p-4 text-center shadow-xs">
                                 <svg className="h-6 w-6 text-gold" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
@@ -524,7 +541,7 @@ export default function ExclusiveFunnelPage() {
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
                                 </svg>
                                 <span className="mt-2 text-xs font-bold text-[#121212]">Size Exchange</span>
-                                <span className="text-[10px] text-[#777777]">সাইজ সমস্যা হলে ২ দিনে এক্সচেঞ্জ</span>
+                                <span className="text-[10px] text-[#777777]">সাইজ সমস্যা হলে ফ্রি এক্সচেঞ্জ</span>
                             </div>
 
                             <div className="flex flex-col items-center rounded-xl border border-gold/15 bg-white p-4 text-center shadow-xs">
@@ -548,8 +565,19 @@ export default function ExclusiveFunnelPage() {
                             </div>
 
                             <form onSubmit={handleOrderSubmit} onFocus={trackInitiateCheckout} className="mt-5 flex flex-col gap-6">
-                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-12 sm:items-start">
+                                {/* Invisible Honeypot to block spam bots */}
+                                <div className="hidden" aria-hidden="true">
+                                    <input
+                                        type="text"
+                                        name="website_hp"
+                                        tabIndex={-1}
+                                        autoComplete="off"
+                                        value={honeypot}
+                                        onChange={(e) => setHoneypot(e.target.value)}
+                                    />
+                                </div>
 
+                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-12 sm:items-start">
                                     {/* Left Column: Product Selection */}
                                     <div className="flex flex-col gap-3 sm:col-span-5 border-b border-[#ededed] pb-5 sm:border-b-0 sm:border-r sm:pr-5">
                                         <span className="text-[11px] font-bold uppercase tracking-wider text-[#121212]">
@@ -774,12 +802,12 @@ export default function ExclusiveFunnelPage() {
                     </form>
                     {newsletterStatus === "success" && (
                         <p className="mt-2 text-xs font-semibold text-emerald-600">
-                            ✓ ধন্যবাদ! আপনার ইমেইল সফলভাবে যুক্ত হয়েছে।
+                            ✓ ধন্যবাদ! আপনার ইমেইল সফলভাবে যুক্ত হয়েছে।
                         </p>
                     )}
                     {newsletterStatus === "error" && (
                         <p className="mt-2 text-xs text-red-500">
-                            সাবস্ক্রাইব করা যায়নি। অনুগ্রহ করে পুনরায় চেষ্টা করুন।
+                            সাবস্ক্রাইব করা যায়নি। অনুগ্রহ করে পুনরায় চেষ্টা করুন।
                         </p>
                     )}
                 </div>
