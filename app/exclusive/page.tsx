@@ -6,39 +6,58 @@ import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
 
-interface ProductItem {
+export interface ColorOption {
+    name: string;
+    hex: string;
+    image: string;
+}
+
+export interface ProductDesign {
     id: string;
     name: string;
     subtitle: string;
-    image: string;
     price: number;
     originalPrice: number;
+    colors: ColorOption[];
 }
 
-const PRODUCTS: ProductItem[] = [
+const DESIGNS: ProductDesign[] = [
     {
-        id: "nusrat-white",
-        name: "Nusrat Embroidery White",
-        subtitle: "Design 01",
-        image: "/products/embroidery-white-3.jpg",
+        id: "Embroidery-Collection-01",
+        name: "Embroidery-Collection-01",
+        subtitle: "Minimal Man",
         price: 1550,
         originalPrice: 1950,
+        colors: [
+            { name: "White", hex: "#F8F8F8", image: "/products/embroidery-white-3.jpg" },
+            { name: "Blue", hex: "#8d99b1", image: "/products/embroidery-blue-3.jpg" },
+            { name: "Maroon", hex: "#550000", image: "/products/embroidery-maroon-3.jpg" },
+        ],
     },
     {
-        id: "nusrat-blue",
-        name: "Nusrat Embroidery Blue",
-        subtitle: "Design 02",
-        image: "/products/embroidery-blue-3.jpg",
+        id: "Embroidery-Collection-02",
+        name: "Embroidery-Collection-02",
+        subtitle: "Heavy Royal",
         price: 1550,
         originalPrice: 1950,
+        colors: [
+            { name: "Burgundy", hex: "#5a4661", image: "/products/embroidery-burgundy.jpg" },
+            { name: "blue", hex: "#002F5E", image: "/products/embroidery-blue.jpg" },
+            { name: "Coffee", hex: "#6F4E37", image: "/products/embroidery-coffee.jpg" },
+            { name: "Black", hex: "#121212", image: "/products/embroidery-black.jpg" },
+        ],
     },
     {
-        id: "nusrat-maroon",
-        name: "Nusrat Embroidery Maroon",
-        subtitle: "Design 03",
-        image: "/products/embroidery-maroon-3.jpg",
-        price: 1550,
-        originalPrice: 1950,
+        id: "embroidery-collection-03",
+        name: "embroidery-collection-03",
+        subtitle: "Classy Saint",
+        price: 1950,
+        originalPrice: 2450,
+        colors: [
+            { name: "Black", hex: "#121212", image: "/products/embroidery-black-2.jpg" },
+            { name: "Blue", hex: "#002F5E", image: "/products/embroidery-blue-2.jpg" },
+            { name: "Maroon", hex: "#550000", image: "/products/embroidery-maroon-2.jpg" },
+        ],
     },
 ];
 
@@ -50,40 +69,67 @@ const APPS_SCRIPT_URL =
 export default function ExclusiveFunnelPage() {
     const formRef = useRef<HTMLDivElement>(null);
 
-    const [selectedProductId, setSelectedProductId] = useState<string>(PRODUCTS[0].id);
-    const [selectedSize, setSelectedSize] = useState<string>("L (৪৪)"); // Fixed: correctly matches SIZES array
+    // Active Selection States
+    const [selectedDesignId, setSelectedDesignId] = useState<string>(DESIGNS[0].id);
+    const [selectedColorName, setSelectedColorName] = useState<string>(DESIGNS[0].colors[0].name);
+    const [selectedSize, setSelectedSize] = useState<string>("L (৪৪)");
     const [quantity, setQuantity] = useState<number>(1);
     const [deliveryArea, setDeliveryArea] = useState<"inside" | "outside">("inside");
 
+    // Catalog card independent color previews
+    const [cardColors, setCardColors] = useState<Record<string, string>>({
+        "design-01": DESIGNS[0].colors[0].name,
+        "design-02": DESIGNS[1].colors[0].name,
+        "design-03": DESIGNS[2].colors[0].name,
+    });
+
+    // Form inputs
     const [customerName, setCustomerName] = useState("");
     const [customerPhone, setCustomerPhone] = useState("");
     const [customerAddress, setCustomerAddress] = useState("");
-
-    // Anti-bot honeypot field
     const [honeypot, setHoneypot] = useState("");
 
+    // Submission states
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [orderComplete, setOrderComplete] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [eventId] = useState(() => "order_" + Date.now() + "_" + Math.floor(Math.random() * 1000));
     const [hasTrackedCheckout, setHasTrackedCheckout] = useState(false);
 
-    // State for Abandoned Lead & Newsletter
+    // Abandoned Cart & Newsletter states
     const [hasCapturedAbandoned, setHasCapturedAbandoned] = useState(false);
     const [newsletterEmail, setNewsletterEmail] = useState("");
     const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
-    const selectedProduct = PRODUCTS.find((p) => p.id === selectedProductId) || PRODUCTS[0];
+    // Resolved active design and color
+    const activeDesign = DESIGNS.find((d) => d.id === selectedDesignId) || DESIGNS[0];
+    const activeColor =
+        activeDesign.colors.find((c) => c.name === selectedColorName) || activeDesign.colors[0];
+
     const deliveryCharge = deliveryArea === "inside" ? 80 : 110;
-    const subtotal = selectedProduct.price * quantity;
+    const subtotal = activeDesign.price * quantity;
     const grandTotal = subtotal + deliveryCharge;
+
+    // Synchronize design and valid color selection
+    const handleDesignChange = (designId: string, preferredColor?: string) => {
+        setSelectedDesignId(designId);
+        const targetDesign = DESIGNS.find((d) => d.id === designId) || DESIGNS[0];
+
+        if (preferredColor && targetDesign.colors.some((c) => c.name === preferredColor)) {
+            setSelectedColorName(preferredColor);
+        } else {
+            setSelectedColorName(targetDesign.colors[0].name);
+        }
+    };
 
     const scrollToProducts = () => {
         document.getElementById("products-section")?.scrollIntoView({ behavior: "smooth" });
     };
 
-    const scrollToForm = (productId?: string) => {
-        if (productId) setSelectedProductId(productId);
+    const scrollToForm = (designId?: string, colorName?: string) => {
+        if (designId) {
+            handleDesignChange(designId, colorName);
+        }
         formRef.current?.scrollIntoView({ behavior: "smooth" });
     };
 
@@ -92,7 +138,7 @@ export default function ExclusiveFunnelPage() {
             setHasTrackedCheckout(true);
             if (typeof window !== "undefined" && (window as any).fbq) {
                 (window as any).fbq("track", "InitiateCheckout", {
-                    content_name: selectedProduct.name,
+                    content_name: `${activeDesign.name} - ${activeColor.name}`,
                     currency: "BDT",
                     value: subtotal,
                 });
@@ -100,7 +146,6 @@ export default function ExclusiveFunnelPage() {
         }
     };
 
-    // Captures abandoned cart leads when user exits phone field
     const handlePhoneBlur = async () => {
         const cleanPhone = customerPhone.replace(/[^0-9]/g, "");
         const phoneRegex = /^01[3-9]\d{8}$/;
@@ -115,8 +160,10 @@ export default function ExclusiveFunnelPage() {
                         type: "abandoned",
                         phone: cleanPhone,
                         name: customerName.trim(),
-                        color: selectedProduct.name,
+                        design: activeDesign.name,
+                        color: activeColor.name,
                         size: selectedSize,
+                        price: activeDesign.price,
                     }),
                 });
             } catch {
@@ -173,10 +220,12 @@ export default function ExclusiveFunnelPage() {
         try {
             const payload = {
                 eventId,
-                productName: selectedProduct.name,
+                productDesign: activeDesign.name,
+                productColor: activeColor.name,
+                productFullName: `${activeDesign.name} (${activeColor.name})`,
                 size: selectedSize,
                 quantity,
-                price: selectedProduct.price,
+                price: activeDesign.price,
                 deliveryCharge,
                 total: grandTotal,
                 customer: {
@@ -185,7 +234,7 @@ export default function ExclusiveFunnelPage() {
                     address: customerAddress,
                     area: deliveryArea === "inside" ? "Inside Dhaka" : "Outside Dhaka",
                 },
-                website_hp: honeypot, // Honeypot spam defense
+                website_hp: honeypot,
                 source: "High-Converting Sales Funnel",
             };
 
@@ -196,13 +245,12 @@ export default function ExclusiveFunnelPage() {
             });
 
             if (res.ok) {
-                // Track Purchase ONLY upon successful backend submission
                 if (typeof window !== "undefined" && (window as any).fbq) {
                     (window as any).fbq(
                         "track",
                         "Purchase",
                         {
-                            content_name: selectedProduct.name,
+                            content_name: `${activeDesign.name} - ${activeColor.name}`,
                             currency: "BDT",
                             value: grandTotal,
                         },
@@ -252,7 +300,7 @@ export default function ExclusiveFunnelPage() {
 
             <main className="mx-auto max-w-[880px] px-3.5 py-6 sm:px-6 sm:py-10">
                 {orderComplete ? (
-                    <div className="my-10 border-2 border-gold bg-white p-6 sm:p-8 text-center shadow-lg">
+                    <div className="my-10 border-2 border-gold bg-white p-6 sm:p-8 text-center shadow-lg rounded-xl">
                         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gold/15 text-2xl text-gold">
                             ✓
                         </div>
@@ -263,7 +311,8 @@ export default function ExclusiveFunnelPage() {
                             ধন্যবাদ <strong>{customerName}</strong>! আমাদের প্রতিনিধি খুব দ্রুত কল করে অর্ডার কনফার্ম করবেন।
                         </p>
                         <div className="mx-auto mt-5 max-w-sm rounded border border-[#ededed] bg-[#fafafa] p-3 text-left text-xs leading-relaxed">
-                            <p>আইটেম: <strong>{selectedProduct.name}</strong></p>
+                            <p>ডিজাইন: <strong>{activeDesign.name}</strong></p>
+                            <p>কালার: <strong>{activeColor.name}</strong></p>
                             <p>সাইজ: <strong>{selectedSize}</strong> ({quantity} টি)</p>
                             <p>
                                 এলাকা: <strong>{deliveryArea === "inside" ? "ঢাকা সিটি (৳৮০)" : "ঢাকার বাইরে (৳১১০)"}</strong>
@@ -273,7 +322,7 @@ export default function ExclusiveFunnelPage() {
                             </p>
                         </div>
                         <Link
-                            href="/"
+                            href="/exclusive"
                             className="mt-5 inline-block rounded bg-gold px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-[#121212] hover:bg-gold-hover hover:text-white"
                         >
                             হোমপেজে ফিরে যান
@@ -294,17 +343,16 @@ export default function ExclusiveFunnelPage() {
                                 Premium Fabric • Refined Embroidery • Double Threadwork
                             </p>
 
-                            {/* Folded Panjabi Box - Square Format */}
                             <div className="relative mt-4 aspect-square w-full max-w-[280px] overflow-hidden rounded-xl border border-gold/30 bg-white p-2 shadow-md">
                                 <div className="relative h-full w-full overflow-hidden rounded-lg">
                                     <Image
-                                        src="/products/embroidery-collection.jpg"
-                                        alt="Nusrat Panjabi Showcase"
+                                        src={activeColor.image}
+                                        alt={`${activeDesign.name} - ${activeColor.name}`}
                                         fill
                                         priority
                                         sizes="(max-width: 640px) 100vw, 480px"
                                         quality={80}
-                                        className="object-cover object-center"
+                                        className="object-cover object-center transition-all duration-300"
                                     />
                                 </div>
                             </div>
@@ -328,7 +376,6 @@ export default function ExclusiveFunnelPage() {
                             </p>
 
                             <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3 w-full">
-                                {/* Card 1: Premium Fabric */}
                                 <div className="flex flex-col items-center rounded-lg border border-gold/20 bg-white p-4 shadow-2xs">
                                     <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-gold/15 text-gold">
                                         <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
@@ -345,7 +392,6 @@ export default function ExclusiveFunnelPage() {
                                     </p>
                                 </div>
 
-                                {/* Card 2: Refined Embroidery */}
                                 <div className="flex flex-col items-center rounded-lg border border-gold/20 bg-white p-4 shadow-2xs">
                                     <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-gold/15 text-gold">
                                         <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
@@ -361,7 +407,6 @@ export default function ExclusiveFunnelPage() {
                                     </p>
                                 </div>
 
-                                {/* Card 3: Comfort Finishing */}
                                 <div className="flex flex-col items-center rounded-lg border border-gold/20 bg-white p-4 shadow-2xs">
                                     <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-gold/15 text-gold">
                                         <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
@@ -380,45 +425,89 @@ export default function ExclusiveFunnelPage() {
                             </div>
                         </section>
 
-                        {/* Product Showcase */}
+                        {/* Interactive Product Showcase */}
                         <section id="products-section" className="flex flex-col items-center scroll-mt-6">
                             <h2 className="text-lg sm:text-2xl font-bold text-[#121212]">
                                 আমাদের এক্সক্লুসিভ কালেকশন
                             </h2>
                             <p className="mt-1 text-[11px] text-[#777777]">
-                                পছন্দের ডিজাইনটি বেছে নিয়ে সরাসরি অর্ডার করুন
+                                কালার নির্বাচন করতে নির্দিষ্ট কালারে ট্যাপ করুন ও অর্ডার করুন
                             </p>
 
                             <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3 w-full">
-                                {PRODUCTS.map((prod) => (
-                                    <div
-                                        key={prod.id}
-                                        className="flex flex-col overflow-hidden rounded-lg border border-[#ededed] bg-white shadow-2xs transition-all hover:border-gold"
-                                    >
-                                        <div className="relative aspect-square w-full bg-[#f7f7f7]">
-                                            <span className="absolute top-2 right-2 z-10 rounded bg-[#121212] px-2 py-0.5 text-[9px] font-bold text-white uppercase">
-                                                {prod.subtitle}
-                                            </span>
-                                            <Image src={prod.image} alt={prod.name} fill className="object-cover" />
-                                        </div>
-                                        <div className="flex flex-1 flex-col justify-between p-3.5">
-                                            <div>
-                                                <h3 className="text-xs font-bold text-[#121212]">{prod.name}</h3>
-                                                <div className="mt-1 flex items-baseline gap-2">
-                                                    <span className="text-base font-bold text-gold">৳{prod.price}</span>
-                                                    <span className="text-[11px] text-[#8f8f8f] line-through">৳{prod.originalPrice}</span>
-                                                </div>
+                                {DESIGNS.map((design) => {
+                                    const activeCardColorName = cardColors[design.id] || design.colors[0].name;
+                                    const currentCardColor =
+                                        design.colors.find((c) => c.name === activeCardColorName) || design.colors[0];
+
+                                    return (
+                                        <div
+                                            key={design.id}
+                                            className="flex flex-col overflow-hidden rounded-xl border border-[#ededed] bg-white shadow-2xs transition-all hover:border-gold"
+                                        >
+                                            <div className="relative aspect-square w-full bg-[#f7f7f7]">
+                                                <span className="absolute top-2 right-2 z-10 rounded bg-[#121212] px-2 py-0.5 text-[9px] font-bold text-white uppercase">
+                                                    {design.subtitle}
+                                                </span>
+                                                <Image
+                                                    src={currentCardColor.image}
+                                                    alt={`${design.name} - ${currentCardColor.name}`}
+                                                    fill
+                                                    className="object-cover transition-all duration-300"
+                                                />
                                             </div>
-                                            <button
-                                                type="button"
-                                                onClick={() => scrollToForm(prod.id)}
-                                                className="mt-3 w-full rounded border border-gold bg-gold py-2 text-[11px] font-bold uppercase tracking-wider text-[#121212] hover:bg-gold-hover hover:text-white"
-                                            >
-                                                Order Now
-                                            </button>
+                                            <div className="flex flex-1 flex-col justify-between p-3.5">
+                                                <div>
+                                                    <h3 className="text-xs font-bold text-[#121212]">{design.name}</h3>
+                                                    <div className="mt-1 flex items-baseline gap-2">
+                                                        <span className="text-base font-bold text-gold">৳{design.price}</span>
+                                                        <span className="text-[11px] text-[#8f8f8f] line-through">৳{design.originalPrice}</span>
+                                                    </div>
+
+                                                    {/* Interactive Catalog Color Swatches */}
+                                                    <div className="mt-2.5 flex items-center gap-2">
+                                                        {design.colors.map((c) => {
+                                                            const isCardActive = activeCardColorName === c.name;
+                                                            return (
+                                                                <button
+                                                                    key={c.name}
+                                                                    type="button"
+                                                                    onClick={() =>
+                                                                        setCardColors((prev) => ({
+                                                                            ...prev,
+                                                                            [design.id]: c.name,
+                                                                        }))
+                                                                    }
+                                                                    title={c.name}
+                                                                    className={`group relative flex h-5 w-5 items-center justify-center rounded-full border transition-all ${isCardActive
+                                                                        ? "border-gold ring-2 ring-gold"
+                                                                        : "border-black/20 hover:scale-105"
+                                                                        }`}
+                                                                >
+                                                                    <span
+                                                                        className="h-3.5 w-3.5 rounded-full"
+                                                                        style={{ backgroundColor: c.hex }}
+                                                                    />
+                                                                </button>
+                                                            );
+                                                        })}
+                                                        <span className="text-[10px] text-zinc-500 font-medium ml-1">
+                                                            ({currentCardColor.name})
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() => scrollToForm(design.id, activeCardColorName)}
+                                                    className="mt-3.5 w-full rounded border border-gold bg-gold py-2 text-[11px] font-bold uppercase tracking-wider text-[#121212] hover:bg-gold-hover hover:text-white transition-colors"
+                                                >
+                                                    Order Now
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </section>
 
@@ -545,14 +634,14 @@ export default function ExclusiveFunnelPage() {
                             </div>
                         </section>
 
-                        {/* Form Section */}
+                        {/* Order Checkout Form Section */}
                         <section ref={formRef} className="rounded-xl border border-gold/60 bg-white p-4 shadow-xl sm:p-7">
                             <div className="border-b border-[#ededed] pb-3 text-center">
                                 <h2 className="text-lg sm:text-2xl font-bold uppercase tracking-wider text-gold">
                                     অর্ডার করতে ফর্মটি পূরণ করুন
                                 </h2>
                                 <p className="mt-1 text-[11px] text-[#777777]">
-                                    সঠিক নাম, মোবাইল নম্বর ও সম্পূর্ণ ঠিকানা প্রদান করুন
+                                    ডিজাইন, কালার ও সাইজ নির্বাচন করে সঠিক ঠিকানা দিন
                                 </p>
                             </div>
 
@@ -570,47 +659,104 @@ export default function ExclusiveFunnelPage() {
                                 </div>
 
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-12 sm:items-start">
-                                    {/* Left Column: Product Selection */}
-                                    <div className="flex flex-col gap-3 sm:col-span-5 border-b border-[#ededed] pb-5 sm:border-b-0 sm:border-r sm:pr-5">
-                                        <span className="text-[11px] font-bold uppercase tracking-wider text-[#121212]">
-                                            আপনার পছন্দ
-                                        </span>
+                                    {/* Left Column: Product Selection & Live Visual Swatch */}
+                                    <div className="flex flex-col gap-4 sm:col-span-5 border-b border-[#ededed] pb-5 sm:border-b-0 sm:border-r sm:pr-5">
 
-                                        <div className="flex flex-col gap-2">
-                                            {PRODUCTS.map((prod) => {
-                                                const isChecked = selectedProductId === prod.id;
-                                                return (
-                                                    <div
-                                                        key={prod.id}
-                                                        onClick={() => setSelectedProductId(prod.id)}
-                                                        className={`flex cursor-pointer items-center justify-between rounded-md border p-2.5 transition-all ${isChecked
-                                                            ? "border-gold bg-gold/10 ring-1 ring-gold"
-                                                            : "border-[#ededed] bg-white hover:border-gold/40"
-                                                            }`}
-                                                    >
-                                                        <div className="flex items-center gap-2.5">
-                                                            <input
-                                                                type="radio"
-                                                                checked={isChecked}
-                                                                onChange={() => setSelectedProductId(prod.id)}
-                                                                className="h-3.5 w-3.5 accent-gold"
-                                                            />
-                                                            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded bg-[#f5f5f5]">
-                                                                <Image src={prod.image} alt={prod.name} fill className="object-cover" />
-                                                            </div>
-                                                            <div className="text-[11px]">
-                                                                <p className="font-bold text-[#121212]">{prod.name}</p>
-                                                                <p className="text-gold font-semibold">৳{prod.price}</p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })}
+                                        {/* IN-FORM LIVE PRODUCT PREVIEW CARD */}
+                                        <div className="flex items-center gap-3 rounded-lg border border-gold/30 bg-[#FAF8F5] p-2.5 shadow-2xs">
+                                            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md border border-[#ededed] bg-white">
+                                                <Image
+                                                    src={activeColor.image}
+                                                    alt={activeColor.name}
+                                                    fill
+                                                    className="object-cover transition-all duration-200"
+                                                />
+                                            </div>
+                                            <div className="flex-1 text-xs">
+                                                <span className="text-[10px] font-bold text-gold uppercase tracking-wider">
+                                                    নির্বাচিত পাঞ্জাবি
+                                                </span>
+                                                <p className="font-bold text-[#121212] leading-tight mt-0.5">
+                                                    {activeDesign.name}
+                                                </p>
+                                                <p className="text-[11px] text-[#666] mt-0.5">
+                                                    কালার: <strong className="text-[#121212]">{activeColor.name}</strong>
+                                                </p>
+                                                <p className="text-xs font-bold text-gold mt-0.5">
+                                                    ৳{activeDesign.price}
+                                                </p>
+                                            </div>
                                         </div>
 
-                                        <div className="mt-1 flex flex-col gap-1.5">
-                                            <label className="text-[11px] font-bold uppercase tracking-wider text-[#121212]">
-                                                সাইজ নির্বাচন করুন:
+                                        {/* Step 1: Design Selector */}
+                                        <div>
+                                            <label className="text-[11px] font-bold uppercase tracking-wider text-[#121212] block mb-1.5">
+                                                ১. ডিজাইন নির্বাচন করুন:
+                                            </label>
+                                            <div className="flex flex-col gap-1.5">
+                                                {DESIGNS.map((design) => {
+                                                    const isChecked = selectedDesignId === design.id;
+                                                    return (
+                                                        <div
+                                                            key={design.id}
+                                                            onClick={() => handleDesignChange(design.id)}
+                                                            className={`flex cursor-pointer items-center justify-between rounded-md border p-2 transition-all ${isChecked
+                                                                ? "border-gold bg-gold/10 ring-1 ring-gold"
+                                                                : "border-[#ededed] bg-white hover:border-gold/40"
+                                                                }`}
+                                                        >
+                                                            <div className="flex items-center gap-2">
+                                                                <input
+                                                                    type="radio"
+                                                                    checked={isChecked}
+                                                                    onChange={() => handleDesignChange(design.id)}
+                                                                    className="h-3.5 w-3.5 accent-gold cursor-pointer"
+                                                                />
+                                                                <span className="text-xs font-semibold text-[#121212]">{design.name}</span>
+                                                            </div>
+                                                            <span className="text-xs font-bold text-gold">৳{design.price}</span>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+
+                                        {/* Step 2: Interactive Color Swatch with Live Update */}
+                                        <div>
+                                            <label className="text-[11px] font-bold uppercase tracking-wider text-[#121212] block mb-1.5">
+                                                ২. কালার নির্বাচন করুন: <span className="text-gold font-bold">({activeColor.name})</span>
+                                            </label>
+                                            <div className="flex flex-wrap items-center gap-2">
+                                                {activeDesign.colors.map((color) => {
+                                                    const isSelected = activeColor.name === color.name;
+                                                    return (
+                                                        <button
+                                                            key={color.name}
+                                                            type="button"
+                                                            onClick={() => setSelectedColorName(color.name)}
+                                                            className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-all cursor-pointer ${isSelected
+                                                                ? "border-gold bg-gold/20 font-bold text-[#121212] ring-2 ring-gold shadow-2xs"
+                                                                : "border-gray-200 bg-white text-zinc-700 hover:border-gray-400"
+                                                                }`}
+                                                        >
+                                                            <span
+                                                                className="h-3.5 w-3.5 rounded-full border border-black/20 shadow-xs inline-block shrink-0"
+                                                                style={{ backgroundColor: color.hex }}
+                                                            />
+                                                            <span>{color.name}</span>
+                                                            {isSelected && (
+                                                                <span className="text-[11px] font-bold text-gold">✓</span>
+                                                            )}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+
+                                        {/* Step 3: Size Selector */}
+                                        <div>
+                                            <label className="text-[11px] font-bold uppercase tracking-wider text-[#121212] block mb-1.5">
+                                                ৩. সাইজ নির্বাচন করুন:
                                             </label>
                                             <div className="grid grid-cols-2 gap-1.5">
                                                 {SIZES.map((size) => (
@@ -618,9 +764,9 @@ export default function ExclusiveFunnelPage() {
                                                         key={size}
                                                         type="button"
                                                         onClick={() => setSelectedSize(size)}
-                                                        className={`rounded border py-2 text-center text-xs transition-all ${selectedSize === size
+                                                        className={`rounded border py-2 text-center text-xs transition-all cursor-pointer ${selectedSize === size
                                                             ? "border-gold bg-gold text-[#121212] font-bold shadow-2xs"
-                                                            : "border-[#ededed] bg-[#fafafa] text-[#4b4b4b]"
+                                                            : "border-[#ededed] bg-[#fafafa] text-[#4b4b4b] hover:border-gray-300"
                                                             }`}
                                                     >
                                                         {size}
@@ -629,13 +775,14 @@ export default function ExclusiveFunnelPage() {
                                             </div>
                                         </div>
 
-                                        <div className="mt-1 flex items-center justify-between rounded border border-[#ededed] bg-[#fafafa] p-2.5">
+                                        {/* Step 4: Quantity Counter */}
+                                        <div className="flex items-center justify-between rounded border border-[#ededed] bg-[#fafafa] p-2.5">
                                             <span className="text-[11px] font-semibold text-[#121212]">পরিমাণ (Quantity):</span>
                                             <div className="flex items-center gap-2.5">
                                                 <button
                                                     type="button"
                                                     onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
-                                                    className="flex h-7 w-7 items-center justify-center rounded border border-[#ededed] bg-white text-xs font-bold text-[#121212] hover:bg-gold hover:text-white"
+                                                    className="flex h-7 w-7 items-center justify-center rounded border border-[#ededed] bg-white text-xs font-bold text-[#121212] hover:bg-gold hover:text-white transition-colors cursor-pointer"
                                                 >
                                                     -
                                                 </button>
@@ -643,7 +790,7 @@ export default function ExclusiveFunnelPage() {
                                                 <button
                                                     type="button"
                                                     onClick={() => setQuantity((prev) => prev + 1)}
-                                                    className="flex h-7 w-7 items-center justify-center rounded border border-[#ededed] bg-white text-xs font-bold text-[#121212] hover:bg-gold hover:text-white"
+                                                    className="flex h-7 w-7 items-center justify-center rounded border border-[#ededed] bg-white text-xs font-bold text-[#121212] hover:bg-gold hover:text-white transition-colors cursor-pointer"
                                                 >
                                                     +
                                                 </button>
@@ -651,7 +798,7 @@ export default function ExclusiveFunnelPage() {
                                         </div>
                                     </div>
 
-                                    {/* Right Column: Customer Info */}
+                                    {/* Right Column: Customer Info & Live Checkout */}
                                     <div className="flex flex-col gap-3.5 sm:col-span-7">
                                         <span className="text-[11px] font-bold uppercase tracking-wider text-[#121212]">
                                             বিলিং এর তথ্য
@@ -700,13 +847,14 @@ export default function ExclusiveFunnelPage() {
                                             />
                                         </div>
 
+                                        {/* Delivery Area Toggle */}
                                         <div className="flex flex-col gap-1 pt-1">
                                             <label className="text-[11px] font-medium text-[#4b4b4b]">ডেলিভারি চার্জ</label>
                                             <div className="grid grid-cols-2 gap-2">
                                                 <button
                                                     type="button"
                                                     onClick={() => setDeliveryArea("inside")}
-                                                    className={`rounded border p-2 text-center text-xs transition-all ${deliveryArea === "inside"
+                                                    className={`rounded border p-2 text-center text-xs transition-all cursor-pointer ${deliveryArea === "inside"
                                                         ? "border-gold bg-gold/15 font-bold text-[#121212] ring-1 ring-gold"
                                                         : "border-[#ededed] bg-[#fafafa] text-[#4b4b4b]"
                                                         }`}
@@ -717,7 +865,7 @@ export default function ExclusiveFunnelPage() {
                                                 <button
                                                     type="button"
                                                     onClick={() => setDeliveryArea("outside")}
-                                                    className={`rounded border p-2 text-center text-xs transition-all ${deliveryArea === "outside"
+                                                    className={`rounded border p-2 text-center text-xs transition-all cursor-pointer ${deliveryArea === "outside"
                                                         ? "border-gold bg-gold/15 font-bold text-[#121212] ring-1 ring-gold"
                                                         : "border-[#ededed] bg-[#fafafa] text-[#4b4b4b]"
                                                         }`}
@@ -732,9 +880,10 @@ export default function ExclusiveFunnelPage() {
                                             <span className="font-bold text-[#121212]">পেমেন্ট পদ্ধতি:</span> ক্যাশ অন ডেলিভারি (পণ্য দেখে মূল্য পরিশোধ করুন)
                                         </div>
 
+                                        {/* Dynamic Price Breakdown */}
                                         <div className="rounded border border-[#ededed] bg-[#fafafa] p-3 text-xs space-y-1">
                                             <div className="flex justify-between text-[#777777]">
-                                                <span>সাবটোটাল:</span>
+                                                <span>{activeDesign.name} ({activeColor.name}) × {quantity}:</span>
                                                 <span>৳{subtotal.toLocaleString()}</span>
                                             </div>
                                             <div className="flex justify-between text-[#777777]">
@@ -787,7 +936,7 @@ export default function ExclusiveFunnelPage() {
                         <button
                             type="submit"
                             disabled={newsletterStatus === "loading"}
-                            className="h-9 rounded border border-gold bg-gold px-4 text-xs font-bold uppercase tracking-wider text-[#121212] hover:bg-gold-hover hover:text-white disabled:opacity-50 transition-all"
+                            className="h-9 rounded border border-gold bg-gold px-4 text-xs font-bold uppercase tracking-wider text-[#121212] hover:bg-gold-hover hover:text-white disabled:opacity-50 transition-all cursor-pointer"
                         >
                             {newsletterStatus === "loading" ? "..." : "যুক্ত হোন"}
                         </button>

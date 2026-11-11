@@ -1,10 +1,11 @@
 // app/products/[slug]/page.tsx
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { SHOP_PRODUCTS } from "@/data/shopProducts";
+import { getAllProductSlugs, getProductBySlug, getShopProducts } from "@/lib/sanity";
 import ProductGallery from "@/components/product/ProductGallery";
 import ProductPurchaseSection from "@/components/product/ProductPurchaseSection";
 import ProductAccordion from "@/components/product/ProductAccordion";
@@ -16,21 +17,39 @@ interface ProductPageProps {
 }
 
 export async function generateStaticParams() {
-    return SHOP_PRODUCTS.map((product) => ({
-        slug: product.slug,
+    const slugs = await getAllProductSlugs();
+    return slugs.map((slug) => ({
+        slug,
     }));
+}
+
+export async function generateMetadata({ params }: ProductPageProps) {
+    const { slug } = await params;
+    const product = await getProductBySlug(slug);
+
+    if (!product) {
+        return {
+            title: "Product Not Found | Nusrat Store",
+        };
+    }
+
+    return {
+        title: `${product.name} | Nusrat Store`,
+        description: product.description || `Buy ${product.name} at Nusrat Store`,
+    };
 }
 
 export default async function ProductDetailPage({ params }: ProductPageProps) {
     const { slug } = await params;
-    const product = SHOP_PRODUCTS.find((p) => p.slug === slug);
+    const product = await getProductBySlug(slug);
 
     if (!product) {
         notFound();
     }
 
     // Related products from the same category or general fallback
-    const relatedProducts = SHOP_PRODUCTS.filter((p) => p.slug !== product.slug).slice(0, 3);
+    const allProducts = await getShopProducts();
+    const relatedProducts = allProducts.filter((p) => p.slug !== product.slug).slice(0, 3);
 
     // Dynamic Image Array: front + back + all extra gallery items
     const galleryImages = [
@@ -120,7 +139,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                             </div>
                         </div>
 
-                        {/* Interactive Size Selector & Telegram COD Checkout Modal */}
+                        {/* Interactive Size Selector & COD Checkout Modal */}
                         <ProductPurchaseSection
                             productName={product.name}
                             price={product.price}
@@ -168,10 +187,17 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                             className="group flex flex-col gap-4 no-underline"
                         >
                             <div className="relative aspect-[0.874] w-full overflow-hidden bg-[#f5f5f5]">
-                                <img
+                                <Image
                                     src={rel.frontImage}
                                     alt={rel.name}
-                                    className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                                    fill
+                                    quality={90}
+                                    sizes="(max-width: 810px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                    className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                                    style={{
+                                        transform: "translateZ(0)",
+                                        backfaceVisibility: "hidden",
+                                    }}
                                 />
                             </div>
                             <div className="flex items-center justify-between">

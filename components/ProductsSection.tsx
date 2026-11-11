@@ -2,8 +2,9 @@ import Link from "next/link";
 import { SectionHeader } from "./SectionHeader";
 import { CornerBrackets } from "./CornerBrackets";
 import Image from "next/image";
+import { getShopProducts } from "@/lib/sanity";
 
-const PRODUCTS = [
+const FALLBACK_PRODUCTS = [
     {
         title: "Arabian Jubba - Black",
         category: "Arabian Jubba",
@@ -33,21 +34,40 @@ const PRODUCTS = [
     },
 ];
 
-export function ProductsSection() {
+export async function ProductsSection() {
+    let displayProducts = FALLBACK_PRODUCTS;
+
+    try {
+        const liveProducts = await getShopProducts();
+        if (liveProducts && liveProducts.length > 0) {
+            displayProducts = liveProducts.slice(0, 3).map((p) => ({
+                title: p.name,
+                category: p.category,
+                price: p.price,
+                oldPrice: p.originalPrice || Math.round(p.price * 1.25),
+                href: `/products/${p.slug}`,
+                frontImage: p.frontImage,
+                backImage: p.backImage || p.frontImage,
+            }));
+        }
+    } catch {
+        displayProducts = FALLBACK_PRODUCTS;
+    }
+
     return (
         <section className="relative z-10 w-full bg-white py-[100px] px-5 min-[810px]:px-6 min-[1200px]:px-10">
             <div className="mx-auto flex max-w-[1120px] flex-col gap-10">
                 <SectionHeader
                     eyebrow="NEW ARRIVALS"
-                    title="Arabian Jubba"
+                    title="Arabian Jubba & Panjabi"
                     ctaText="SEE ALL PRODUCTS"
                     ctaHref="/shop/all"
                 />
 
                 <div className="grid grid-cols-1 min-[810px]:grid-cols-2 min-[1200px]:grid-cols-3 gap-6 w-full">
-                    {PRODUCTS.map((product) => (
+                    {displayProducts.map((product) => (
                         <Link
-                            key={product.title}
+                            key={product.href}
                             href={product.href}
                             className="group flex w-full flex-col gap-4"
                         >
@@ -69,7 +89,6 @@ export function ProductsSection() {
                                     sizes="(max-width: 810px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                     className="object-cover object-top transition-all duration-500 group-hover:scale-115 group-hover:opacity-0"
                                 />
-                                <div className="bg-noise pointer-events-none absolute inset-0 opacity-5" />
                                 <CornerBrackets />
                             </div>
 
@@ -89,10 +108,12 @@ export function ProductsSection() {
                                         <span>৳</span>
                                         <span>{product.price.toLocaleString()}</span>
                                     </div>
-                                    <div className="flex items-center text-[14px] font-light tracking-tight text-[#8f8f8f] line-through">
-                                        <span>৳</span>
-                                        <span>{product.oldPrice.toLocaleString()}</span>
-                                    </div>
+                                    {product.oldPrice && (
+                                        <div className="flex items-center text-[14px] font-light tracking-tight text-[#8f8f8f] line-through">
+                                            <span>৳</span>
+                                            <span>{product.oldPrice.toLocaleString()}</span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </Link>

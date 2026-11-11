@@ -3,33 +3,33 @@ import { SectionHeader } from "./SectionHeader";
 const REVIEWS = [
     {
         quote:
-            "“Most online embroidery looks flat in person, but their detailing looks much sharper. The stitches are dense, clean, and completely mixed with fabric. Very refined work.”",
-        author: "Habibur Rahman",
+            "“অনলাইনে বেশিরভাগ পাঞ্জাবির এমব্রয়ডারি বাস্তবে দেখতে সাদামাটা লাগে, কিন্তু নুসরাত পাঞ্জাবির কাজগুলো বাস্তবে অনেক বেশি নিখুঁত ও স্পষ্ট। এক কথায় দারুণ ফিনিশিং”",
+        author: "হাবিবুর রহমান, ধানমন্ডি",
     },
     {
         quote:
-            "“Finally, a brand that combines comfort and elegance! Their panjabi fit like they were custom-made just for me.”",
-        author: "Lokman Hossain",
+            "“অবশেষে এমন একটি ব্র্যান্ড পেলাম যেখানে আরাম আর আভিজাত্য দুটোই একসাথে আছে! পাঞ্জাবিটির ফিটিং দেখে মনে হয়েছে যেন দর্জি দিয়ে একদম আমার গায়ের মাপে বানিয়ে নেওয়া”",
+        author: "লোকমান হোসেন, চট্টগ্রাম",
     },
     {
         quote:
-            "“I ordered a Jubba sized 54(M) based on the size guide, and the length and shoulder fall are perfect. It has that structured, royal Arabian drape without feeling baggy around the chest.”",
-        author: "Jahidul Islam",
+            "“সাইজ চার্ট দেখে ৫৪ (M) সাইজের জুব্বা অর্ডার করেছিলাম, লম্বা আর কাঁধের মাপ একদম পারফেক্ট হয়েছে। বুকের কাছে ঢিলেঢালা ভাব নেই, খাঁটি অ্যারাবিয়ান লুকটা চমৎকারভাবে ফুটে উঠেছে”",
+        author: "জাহিদুল ইসলাম, উত্তরা",
     },
     {
         quote:
-            "“Recently ordered a panjabi as a birthday gift for my elder brother. He really loved the fabrics and quality. Also the presentation box was perfect for the gift. It made the packeging more premium then i expected”",
-        author: "Farukh Hossain",
+            "“বড় ভাইয়ের জন্মদিনের উপহার হিসেবে পাঞ্জাবিটি অর্ডার করেছিলাম। ফেব্রিক আর কোয়ালিটি ভাইয়ের খুবই পছন্দ হয়েছে। সাথে যে সিগনেচার গিফট বক্সটি পেয়েছি, তা উপহার দেওয়ার জন্য এক কথায় অসাধারণ। প্যাকেজিং প্রত্যাশার চেয়েও বেশি প্রিমিয়াম ছিল।”",
+        author: "তানভীর আহমেদ, বনানী",
     },
     {
         quote:
-            "“I ordered a panjabi on sunday evening. They confirmed the order within an hour via call. I got the product next day morning. I was surpriced with this fast delivery.”",
-        author: "Laxmon Saha",
+            "“রবিবার সন্ধ্যায় অর্ডার দিয়েছিলাম, এক ঘণ্টার মধ্যেই কল করে অর্ডার কনফার্ম করে। আর পরের দিন সকালেই পার্সেল হাতে পেয়ে গেলাম! তাদের এত দ্রুত ডেলিভারি সার্ভিস দেখে সত্যিই অবাক হয়েছি।”",
+        author: "কামরুল হাসান, মিরপুর",
     },
     {
         quote:
-            "“I reached out through messenger to double-check my measurements, and their sizing guidance was 100% accurate. The size 56 fits cleanly across the chest and shoulders. Highly impressed with the quality.”",
-        author: "Humayun Kabir",
+            "“সাইজ নিয়ে কিছুটা দ্বিধায় ছিলাম, তাই মেসেঞ্জারে যোগাযোগ করি। তাদের সাইজ গাইডেন্স ১০০% সঠিক ছিল। ৫৬ সাইজটি বুক আর কাঁধে একদম পারফেক্ট বসেছে। ফেব্রিক ও সেলাইয়ের মানে আমি সত্যিই মুগ্ধ।”",
+        author: "সাজিদ চৌধুরী, সিলেট",
     },
 ];
 

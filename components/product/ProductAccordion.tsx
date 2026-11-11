@@ -57,8 +57,8 @@ export default function ProductAccordion({
             title: "Shipping Information",
             content: (
                 <div className="space-y-1 text-[15px] font-light leading-[1.6] text-[#4b4b4b]">
-                    <p>• <strong>ঢাকার ভেতরে:</strong> ডেলিভারি চার্জ ৳৭০ (২-৩ কার্যদিবস)</p>
-                    <p>• <strong>ঢাকার বাইরে:</strong> ডেলিভারি চার্জ ৳১৩০ (৩-৫ কার্যদিবস)</p>
+                    <p>• <strong>ঢাকার ভেতরে:</strong> ডেলিভারি চার্জ ৳৮০ (২-৩ কার্যদিবস)</p>
+                    <p>• <strong>ঢাকার বাইরে:</strong> ডেলিভারি চার্জ ৳১১০ (৩-৫ কার্যদিবস)</p>
                     <p className="pt-1 text-xs text-[#8f8f8f]">
                         *সারা দেশে ক্যাশ অন ডেলিভারি সুবিধা রয়েছে। পার্সেল ডেলিভারি ম্যানের সামনে দেখে বুঝে নেওয়ার সুযোগ পাবেন।
                     </p>

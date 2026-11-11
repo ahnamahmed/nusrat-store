@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "framerusercontent.com" },
       { protocol: "https", hostname: "videos.pexels.com" },
+      { protocol: "https", hostname: "cdn.sanity.io" },
     ],
   },
 };

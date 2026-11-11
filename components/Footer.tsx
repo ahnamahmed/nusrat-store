@@ -51,9 +51,9 @@ export function Footer() {
                                 </p>
                                 <div className="flex flex-col gap-4 text-[16px] font-light tracking-[-0.03em]">
                                     <Link href="/shop/all" className="hover:text-gold transition-colors">All Products</Link>
-                                    <Link href="/shop/arabian-jubba" className="hover:text-gold transition-colors">Arabian Jubba</Link>
-                                    <Link href="/shop/premium-panjabi" className="hover:text-gold transition-colors">Premium Panjabi</Link>
-                                    <Link href="/shop/new-arrival" className="hover:text-gold transition-colors">New Arrivals</Link>
+                                    <Link href="/shop/embroidery-panjabi" className="hover:text-gold transition-colors">Embroidery Panjabi</Link>
+                                    <Link href="/shop/thobe" className="hover:text-gold transition-colors">Thobe (Jubba)</Link>
+                                    <Link href="/shop/signature-panjabi" className="hover:text-gold transition-colors">Signature Panjabi</Link>
                                 </div>
                             </div>
 
